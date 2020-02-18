@@ -11,6 +11,8 @@ with open("functions.py", "r") as f:
         if line.startswith("def"):
             funcs.append(line.split("(")[0].split(" ")[1])
 
+#es = ExecuteSites(max_threads=1, max_req_same_proxy=3)
+#es.db.populate_db("yourPath")
 threads = []
 for func in funcs:
     method_to_call = getattr(functions, func)

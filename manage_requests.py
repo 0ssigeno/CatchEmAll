@@ -38,8 +38,9 @@ class ManageRequests:
         Retrieve a server to use the credentials
         Set the proxy and the value for the class
         """
-        provider = random.choice(self.proxiesNames)
-        if provider:
+        if self.proxiesNames:
+
+            provider = random.choice(self.proxiesNames)
             users = self.db.retrieve_users(provider, "TRUE")
             if users:
                 creds = random.choice(users)
