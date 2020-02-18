@@ -10,9 +10,9 @@ with open("functions.py","r") as f:
         if line.startswith("def"):
             funcs.append(line.split("(")[0].split(" ")[1])
 
-es = ExecuteSites(max_threads=4, max_req_same_proxy=3)
+es = ExecuteSites(max_threads=1, max_req_same_proxy=3)
 
-#es.db.populate_db("./vpn/toTest")
+es.db.populate_db("/home/methk/Documents/Shady/CatchEmAll/test")
 #es.db.add_column("spotify")
 #es.db.add_column("nordvpnProxy")
 #
