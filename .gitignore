@@ -2,6 +2,11 @@
 vpn/
 vpn/*
 .config.ini
+.idea
+.idea/*
+test
+test/*
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -131,3 +136,5 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+.test/
