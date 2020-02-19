@@ -1,14 +1,17 @@
-import random
-import cloudscraper
 import logging as log
+import random
 import re
-from manage_db import ManageDb
-from requests.exceptions import ProxyError
+
+import cloudscraper
 from fake_useragent import UserAgent
+from requests.exceptions import ProxyError
+
+from manage_db import ManageDb
+from nordvpn import NordVpn
 
 
 class ManageRequests:
-    def __init__(self):
+    def __init__(self, proxy=True):
         self.req = cloudscraper.create_scraper()
         self.db = ManageDb()
         log.info("Init MR")
@@ -17,6 +20,8 @@ class ManageRequests:
         self.proxyUsr = None
         self.proxyPwd = None
         self.ua = UserAgent()
+        if proxy:
+            self.nordvpn = NordVpn()
 
     def bypass_cf(self, site):
         """
@@ -30,7 +35,6 @@ class ManageRequests:
     """
         nordvpnProxy disponibile
     """
-
     def set_random_proxy(self):
         """
         Retrieve a random vpn provider
@@ -39,16 +43,17 @@ class ManageRequests:
         Set the proxy and the value for the class
         """
         if self.proxiesNames:
-
             provider = random.choice(self.proxiesNames)
             users = self.db.retrieve_users(provider, "TRUE")
             if users:
                 creds = random.choice(users)
                 usr = creds[0]
                 pwd = creds[1]
-                # TODO non hardcodarlo
-                server = "it102.nordvpn.com"
-                self.req.proxies = {"https": "https://{}:{}@{}:80".format(usr, pwd, server)}
+                if provider == "nordvpnProxy":
+                    server = self.nordvpn.get_working_server()
+                    self.req.proxies = {"https": "https://{}:{}@{}:80".format(usr, pwd, server)}
+                else:
+                    raise Exception("Provider not implemented")
                 self.proxyName = provider
                 self.proxyUsr = usr
                 self.proxyPwd = pwd
@@ -75,8 +80,10 @@ class ManageRequests:
             return res
         except ProxyError as e:
             if self.proxyUsr:
-                log.info("Proxy {} not valid".format(self.proxyUsr, self.proxyPwd))
+                log.warning("Proxy {} not valid".format(self.proxyUsr, self.proxyPwd))
                 self.db.update_result(self.proxyUsr, self.proxyPwd, self.proxyName, "FALSE")
+            else:
+                log.warning("Big uff ")
             self.set_random_proxy()
             return self.post_with_checks(site, data=data, cookies=cookies)
         except ConnectionError and ConnectionAbortedError and ConnectionRefusedError and ConnectionResetError:
