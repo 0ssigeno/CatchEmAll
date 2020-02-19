@@ -28,8 +28,8 @@ class ManageDb:
                                              database=self.maria_db)
         cursor = mariadb_connection.cursor()
         cursor.execute("""CREATE TABLE IF NOT EXISTS `{}` (
-                       `email` VARCHAR(320) NOT NULL,
-                       `password` VARCHAR(320) NOT NULL,
+                       `email` VARCHAR(50) NOT NULL,
+                       `password` VARCHAR(50) NOT NULL,
                        PRIMARY KEY (email,password)
                        )""".format(self.maria_table))
         log.info("Table Leaks created")
