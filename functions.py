@@ -22,8 +22,7 @@ import logging as log
 #     print(res.content)
 
 
-def linkedin(usr, pwd, mr):
-    mr : ManageRequests
+def linkedin(usr : str, pwd : str, mr : ManageRequest):
     get_url = "https://www.linkedin.com/login"
     post_url = "https://www.linkedin.com/checkpoint/lg/login-submit"
 
@@ -54,9 +53,8 @@ def linkedin(usr, pwd, mr):
     mr.req.cookies.clear()
 
 
-def yelp(usr, pwd, mr):
-    mr : ManageRequests
-    site_url = "https://www.yelp.co.uk/login"
+def yelp(usr : str, pwd : str, mr : ManageRequest):
+   site_url = "https://www.yelp.co.uk/login"
 
     # Get main page with csrftok
     res = mr.req.get(site_url, headers={'User-Agent': 'Mozilla/5.0'})
@@ -81,8 +79,7 @@ def yelp(usr, pwd, mr):
     mr.req.cookies.clear()
 
 
-def pornhub(usr, pwd, mr):
-    mr : ManageRequests
+def pornhub(usr : str, pwd : str, mr : ManageRequest):
     post_url = "https://www.pornhub.com/front/authenticate"
     get_url = "https://www.pornhub.com/"
 
@@ -115,8 +112,7 @@ def pornhub(usr, pwd, mr):
     mr.req.cookies.clear()
 
 
-def netflix(usr, pwd, mr):
-    mr : ManageRequests
+def netflix(usr : str, pwd : str, mr : ManageRequest):
     site_url = "https://www.netflix.com/Login"
 
     # Get login page with authURL
@@ -148,8 +144,7 @@ def netflix(usr, pwd, mr):
     mr.req.cookies.clear()
 
 
-def uplay(usr, pwd, mr):
-    mr: ManageRequests
+def uplay(usr : str, pwd : str, mr : ManageRequest):
     usr: str
     pwd: str
     site_post = "https://public-ubiservices.ubi.com/v3/profiles/sessions"
@@ -174,7 +169,7 @@ def uplay(usr, pwd, mr):
     mr.req.cookies.clear()
 
 
-def nordvpn(usr, pwd, mr):
+def nordvpn(usr : str, pwd : str, mr : ManageRequest):
     """
     Custom functions must have 3 params: username and password to check, and a ManageRequests object
     The MR object has all the primitives that you need.
