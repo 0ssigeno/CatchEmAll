@@ -1,8 +1,9 @@
-import mysql.connector as mariadb
 import logging as log
-from os.path import isfile, join
-from os import listdir
 import re
+from os import listdir
+from os.path import isfile, join
+
+import mysql.connector as mariadb
 
 
 class ManageDb:
@@ -60,8 +61,20 @@ class ManageDb:
         self.cursor.execute(update)
         self.connection.commit()
 
+    def retrieve_value_user(self, email, pwd, column):
+        select = "SELECT {} from Leaks where email = '{}' and password = '{}'".format(column, email, pwd)
+        self.cursor.execute(select)
+        user = self.cursor.fetchone()[0]
+        return user
+
     def retrieve_users(self, column, value):
         select = "SELECT email,password from Leaks where {} is {}".format(column, value)
+        self.cursor.execute(select)
+        users = self.cursor.fetchall()
+        return users
+
+    def retrieve_all(self):
+        select = "SELECT email, password from Leaks "
         self.cursor.execute(select)
         users = self.cursor.fetchall()
         return users
