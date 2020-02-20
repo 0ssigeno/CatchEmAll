@@ -51,6 +51,7 @@ class ManageDb:
                         log.info("Inserting {}".format(creds))
                         insert = "INSERT IGNORE INTO Leaks(email,password) VALUES (%s,%s) "
                         self.cursor.execute(insert, creds)
+        self.connection.commit()
 
     def add_column(self, name):
         self.cursor.execute("ALTER TABLE Leaks ADD COLUMN IF NOT EXISTS {} BOOLEAN".format(name))
