@@ -6,12 +6,12 @@ import cloudscraper
 from fake_useragent import UserAgent
 from requests.exceptions import ProxyError
 
+from Vpn.nordvpn import NordVpn
 from manage_db import ManageDb
-from nordvpn import NordVpn
 
 
 class ManageRequests:
-    def __init__(self, proxy=True):
+    def __init__(self, nordvpn: NordVpn = False):
         self.req = cloudscraper.create_scraper()
         self.db = ManageDb()
         log.info("Init MR")
@@ -20,8 +20,9 @@ class ManageRequests:
         self.proxyUsr = None
         self.proxyPwd = None
         self.ua = UserAgent()
-        if proxy:
-            self.nordvpn = NordVpn()
+        if nordvpn:
+            self.nordvpn = nordvpn
+        self.proxies = None
 
     def bypass_cf(self, site):
         """
@@ -50,7 +51,7 @@ class ManageRequests:
                 usr = creds[0]
                 pwd = creds[1]
                 if provider == "nordvpnProxy":
-                    server = self.nordvpn.get_working_server()
+                    server = self.nordvpn.get_random_server()
                     self.req.proxies = {"https": "https://{}:{}@{}:80".format(usr, pwd, server)}
                 else:
                     raise Exception("Provider not implemented")
@@ -68,6 +69,22 @@ class ManageRequests:
         random_ua = self.ua.random
         self.req.headers.update({"User-Agent": random_ua})
         log.info("UserAgent selected {}".format(random_ua))
+
+    def get_with_checks(self, site, cookies=None, headers=None):
+        try:
+            res = self.req.get(site, cookies=cookies, headers=headers)
+            return res
+        except ProxyError as e:
+            if self.proxyUsr:
+                log.warning("Proxy {} {} not valid".format(self.proxyUsr, self.proxyPwd, self.proxyPwd))
+                self.db.update_result(self.proxyUsr, self.proxyPwd, self.proxyName, "FALSE")
+            else:
+                log.warning("Big uff ")
+            self.set_random_proxy()
+            return self.get_with_checks(site, headers=headers, cookies=cookies)
+        except ConnectionError and ConnectionAbortedError and ConnectionRefusedError and ConnectionResetError:
+            log.error("Get a stable connection please")
+            exit()
 
     def post_with_checks(self, site, data=None, cookies=None):
         """

