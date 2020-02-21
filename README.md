@@ -1,5 +1,18 @@
 # CatchEmAll
 
+## Pokedex
+
+Nordvpn   : need fix
+Linkedin  : need test
+Yelp      : need test
+Youporn   : need test
+Pornhub   : need test
+Netflix   : works
+Uplay     : works
+
+
+
+  
 ## Requirements
 - [MariaDB](https://mariadb.org/)
 - [Python 3.8](https://www.python.org/downloads/release/python-380/)
