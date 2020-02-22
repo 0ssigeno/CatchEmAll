@@ -21,17 +21,17 @@ def chunks(seq, num):
 
 class ExecuteSites:
 
-    def __init__(self, max_req_same_proxy=5, max_threads=2, threading_sites=False):
+    def __init__(self, max_req_same_proxy=5, max_threads=2, threading_sites=False, local=True):
         self.max_req_same_proxy = max_req_same_proxy
         self.max_threads = max_threads
-        self.db = ManageDb()
         self.threading_sites = threading_sites
+        self.local = local
 
     def execute_thread(self, nordvpn: NordVpn, users: list, functions_to_execute: list, columns: list):
         """
         function_to_execute is the function that the user define for scrape a single site
         """
-        mr = ManageRequests(nordvpn=nordvpn)
+        mr = ManageRequests(nordvpn=nordvpn, local=self.local)
         mr.set_random_proxy()
         mr.set_random_user_agent()
 
@@ -45,7 +45,8 @@ class ExecuteSites:
             if self.threading_sites:
                 threads = []
             for j, function_to_execute in enumerate(functions_to_execute):
-                value_user_column = self.db.retrieve_value_user(usr, pwd, columns[j])
+                mr.db.add_column(columns[j])
+                value_user_column = mr.db.retrieve_value_user(usr, pwd, columns[j])
                 if value_user_column is None:
                     log.info("Testing {} on site {}".format(usr, columns[j]))
                     counter_test += 1
@@ -68,15 +69,15 @@ class ExecuteSites:
                 for t in threads:
                     t.join()
 
-    def test_site(self, functions_to_execute: list, columns: list):
+    def test_sites(self, functions_to_execute: list, columns: list):
         """
             Create a column for the site that wants to be tested, if is not already present
             Retrieve every users that must be tested
             Divide users in equal parts, each subset will have its own thread
         """
-        for column in columns:
-            self.db.add_column(column)
-        users = self.db.retrieve_all()
+        db = ManageDb(local=self.local)
+        users = db.retrieve_all()
+        db.close_connection()
         log.info("We are going to test {} users".format(len(users)))
         list_users = chunks(users, self.max_threads)
         threads = []
@@ -89,3 +90,8 @@ class ExecuteSites:
             t.start()
         for t in threads:
             t.join()
+
+    def populate_db(self, path):
+        db = ManageDb(local=self.local)
+        db.populate_db(path)
+        db.close_connection()
