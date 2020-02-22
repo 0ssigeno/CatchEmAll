@@ -49,7 +49,7 @@ class NordVpn:
         url = nord_api_base + "/servers/recommendations"
         params = {
             "limit": 16384,
-            "filters[country_id]": country_name,
+            "filters[country_id]": country_id,
             "fields[servers.name]": "",
             "fields[servers.locations.country.code]": "",
             "fields[servers.locations.country.city.name]": "",
