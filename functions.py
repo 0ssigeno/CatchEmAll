@@ -25,7 +25,7 @@ from manage_requests import ManageRequests
 
 
 
-def linkedin(usr : str, pwd : str, mr : ManageRequest):
+def linkedin(usr : str, pwd : str, mr : ManageRequests):
     get_url = "https://www.linkedin.com/login"
     post_url = "https://www.linkedin.com/checkpoint/lg/login-submit"
 
@@ -56,8 +56,8 @@ def linkedin(usr : str, pwd : str, mr : ManageRequest):
     mr.req.cookies.clear()
 
 
-def yelp(usr : str, pwd : str, mr : ManageRequest):
-   site_url = "https://www.yelp.co.uk/login"
+def yelp(usr : str, pwd : str, mr : ManageRequests):
+    site_url = "https://www.yelp.co.uk/login"
 
     # Get main page with csrftok
     res = mr.req.get(site_url, headers={'User-Agent': 'Mozilla/5.0'})
@@ -81,7 +81,7 @@ def yelp(usr : str, pwd : str, mr : ManageRequest):
     log.info("-------------------------------")
     mr.req.cookies.clear()
 
-def youporn(usr : str, pwd : str, mr : ManageRequest):
+def youporn(usr : str, pwd : str, mr : ManageRequests):
     post_url = "https://www.youporn.com/login/"
     # Post request to login
     res = mr.post_with_checks(post_url,
@@ -182,7 +182,7 @@ def netflix(usr: str, pwd: str, mr: ManageRequests):
     log.info("-------------------------------")
     mr.req.cookies.clear()
 
-def uplay(usr : str, pwd : str, mr : ManageRequest):
+def uplay(usr : str, pwd : str, mr : ManageRequests):
     usr: str
     pwd: str
     site_post = "https://public-ubiservices.ubi.com/v3/profiles/sessions"
@@ -205,7 +205,7 @@ def uplay(usr : str, pwd : str, mr : ManageRequest):
     log.info("-------------------------------")
     mr.req.cookies.clear()
     
-def nordvpn(usr : str, pwd : str, mr : ManageRequest):
+def nordvpn(usr : str, pwd : str, mr : ManageRequests):
     """
     Custom functions must have 3 params: username and password to check, and a ManageRequests object
     The MR object has all the primitives that you need.
