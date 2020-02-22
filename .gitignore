@@ -1,6 +1,4 @@
 # Custom
-vpn/
-vpn/*
 .config.ini
 .idea
 .idea/*

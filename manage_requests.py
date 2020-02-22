@@ -9,13 +9,13 @@ from requests.exceptions import ProxyError
 from Vpn.nordvpn import NordVpn
 from manage_db import ManageDb
 
+PROXIES_IMPLEMENTED = ["nordvpnProxy"]
+
 
 class ManageRequests:
-    def __init__(self, nordvpn: NordVpn = False):
+    def __init__(self, nordvpn: NordVpn = False, local=True):
         self.req = cloudscraper.create_scraper()
-        self.db = ManageDb()
-        log.info("Init MR")
-        self.proxiesNames = self.db.retrieve_proxies_names()
+        self.db = ManageDb(local)
         self.proxyName = None
         self.proxyUsr = None
         self.proxyPwd = None
@@ -23,6 +23,7 @@ class ManageRequests:
         if nordvpn:
             self.nordvpn = nordvpn
         self.proxies = None
+        log.info("Init MR")
 
     def bypass_cf(self, site):
         """
@@ -43,24 +44,26 @@ class ManageRequests:
         Retrieve a server to use the credentials
         Set the proxy and the value for the class
         """
-        if self.proxiesNames:
-            provider = random.choice(self.proxiesNames)
-            users = self.db.retrieve_users(provider, "TRUE")
-            if users:
-                creds = random.choice(users)
-                usr = creds[0]
-                pwd = creds[1]
-                if provider == "nordvpnProxy":
+        if PROXIES_IMPLEMENTED:
+            provider = random.choice(PROXIES_IMPLEMENTED)
+            if provider == "nordvpnProxy":
+                users = self.db.retrieve_users(provider, "TRUE")
+                if users:
+                    creds = random.choice(users)
+                    usr = creds[0]
+                    pwd = creds[1]
                     server = self.nordvpn.get_random_server()
                     self.req.proxies = {"https": "https://{}:{}@{}:80".format(usr, pwd, server)}
+                    self.proxyName = provider
+                    self.proxyUsr = usr
+                    self.proxyPwd = pwd
+                    log.info("Setting proxy to {}@{}:80".format(usr, server))
                 else:
-                    raise Exception("Provider not implemented")
-                self.proxyName = provider
-                self.proxyUsr = usr
-                self.proxyPwd = pwd
-                log.info("Setting proxy to {}@{}:80".format(usr, server))
+                    log.warning("No proxy available for nordvpn")
             else:
-                log.warning("No proxy available")
+                raise Exception("Provider not implemented")
+        else:
+            raise Exception("Please implement at least one proxy")
 
     def set_random_user_agent(self):
         """

