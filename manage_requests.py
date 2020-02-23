@@ -9,20 +9,17 @@ from requests.exceptions import ProxyError
 from Vpn.nordvpn import NordVpn
 from manage_db import ManageDb
 
-PROXIES_IMPLEMENTED = ["nordvpnProxy"]
+PROXIES_IMPLEMENTED = {"nordvpnProxy":NordVpn()}
 
 
 class ManageRequests:
-    def __init__(self, nordvpn: NordVpn = False, local=True):
+    def __init__(self, local=True):
         self.req = cloudscraper.create_scraper()
         self.db = ManageDb(local)
         self.proxyName = None
         self.proxyUsr = None
         self.proxyPwd = None
         self.ua = UserAgent()
-        if nordvpn:
-            self.nordvpn = nordvpn
-        self.proxies = None
         log.info("Init MR")
 
     def bypass_cf(self, site):
@@ -45,14 +42,14 @@ class ManageRequests:
         Set the proxy and the value for the class
         """
         if PROXIES_IMPLEMENTED:
-            provider = random.choice(PROXIES_IMPLEMENTED)
+            provider = random.choice(list(PROXIES_IMPLEMENTED.keys()))
             if provider == "nordvpnProxy":
-                users = self.db.retrieve_users(provider, "TRUE")
+                users = self.db.retrieve_users(provider, True)
                 if users:
                     creds = random.choice(users)
                     usr = creds[0]
                     pwd = creds[1]
-                    server = self.nordvpn.get_random_server()
+                    server = PROXIES_IMPLEMENTED[provider].get_random_server()
                     self.req.proxies = {"https": "https://{}:{}@{}:80".format(usr, pwd, server)}
                     self.proxyName = provider
                     self.proxyUsr = usr
@@ -79,8 +76,8 @@ class ManageRequests:
             return res
         except ProxyError as e:
             if self.proxyUsr:
-                log.warning("Proxy {} {} not valid".format(self.proxyUsr, self.proxyPwd, self.proxyPwd))
-                self.db.update_result(self.proxyUsr, self.proxyPwd, self.proxyName, "FALSE")
+                log.warning("Proxy {} {} not valid".format(self.proxyUsr, self.proxyPwd))
+                self.db.update_result(self.proxyUsr, self.proxyPwd, self.proxyName, False)
             else:
                 log.warning("Big uff ")
             self.set_random_proxy()
@@ -100,8 +97,8 @@ class ManageRequests:
             return res
         except ProxyError as e:
             if self.proxyUsr:
-                log.warning("Proxy {} not valid".format(self.proxyUsr, self.proxyPwd))
-                self.db.update_result(self.proxyUsr, self.proxyPwd, self.proxyName, "FALSE")
+                log.warning("Proxy {} {} not valid".format(self.proxyUsr, self.proxyPwd))
+                self.db.update_result(self.proxyUsr, self.proxyPwd, self.proxyName, False)
             else:
                 log.warning("Big uff ")
             self.set_random_proxy()

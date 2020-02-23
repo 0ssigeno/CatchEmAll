@@ -1,7 +1,6 @@
-import logging as log
-
 import functions
 from execute_sites import ExecuteSites
+import logging as log
 
 MAX_THREADS = 1
 MAX_REQ_SAME_PROXY = 5
@@ -10,7 +9,9 @@ LOCAL = True
 FUNCTIONS_FILE = "functions.py"
 
 if __name__ == "__main__":
-    log.basicConfig(level=log.INFO, format='%(threadName)s %(message)s')
+    for handler in log.root.handlers[:]:
+        log.root.removeHandler(handler)
+    log.basicConfig( format='%(threadName)s %(message)s', level=log.INFO)
     funcs_names = []
     with open(FUNCTIONS_FILE, "r") as f:
         for line in f.readlines():

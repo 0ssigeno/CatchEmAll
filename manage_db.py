@@ -19,7 +19,7 @@ class ManageDb:
         self._privileges = {}
         self.__init_db()
         self._connection, self._cursor = self.__connection()
-        if not local and ("CREATE" or "ALL PRIVILEGES") in self._privileges[self._maria_db + ".*"]:
+        if local or ("CREATE" or "ALL PRIVILEGES") in self._privileges[self._maria_db + ".*"]:
             self.__create_table()
 
     def close_connection(self):
@@ -80,9 +80,9 @@ class ManageDb:
                 db = elem[0].split("ON")[1].split("TO")[0].strip().replace("`", "")
                 grants = [grant.strip() for grant in elem[0].split(" ON ")[0].split("GRANT")[1].split(",")]
                 self._privileges[db] = grants
-            if "CREATE" or "ALL PRIVILEGES" in self._privileges["*.*"]:
-                cursor.execute("CREATE DATABASE IF NOT EXISTS `{}`".format(self._maria_db))
-                log.info("Database checked")
+        if self.local or "CREATE" or "ALL PRIVILEGES" in self._privileges["*.*"]:
+            cursor.execute("CREATE DATABASE IF NOT EXISTS {}".format(self._maria_db))
+            log.info("Database checked")
         mariadb_connection.disconnect()
 
     def __create_table(self):
@@ -106,35 +106,33 @@ class ManageDb:
                         elem = elem.group()
                         creds = (elem.split(":")[0], elem.split(":")[1])
                         log.info("Inserting {}".format(creds))
-                        insert = "INSERT IGNORE INTO Leaks(email,password) VALUES (%s,%s) "
+                        insert = "INSERT IGNORE INTO {}(email,password) VALUES (%s,%s) ".format(self._maria_table)
                         self._cursor.execute(insert, creds)
         self._connection.commit()
 
     def add_column(self, name):
-        self._cursor.execute("ALTER TABLE Leaks ADD COLUMN IF NOT EXISTS {} BOOLEAN".format(name))
+        self._cursor.execute("ALTER TABLE {} ADD COLUMN IF NOT EXISTS {} BOOLEAN".format(self._maria_table, name))
         self._connection.commit()
 
     def update_result(self, usr, pwd, column, result):
-        update = "UPDATE Leaks SET {} = {} WHERE email= '{}' AND password= '{}'".format(column, result, usr, pwd)
-        self._cursor.execute(update)
+        update = "UPDATE {} SET {} = %s WHERE email= %s AND password= %s".format(self._maria_table, column)
+        self._cursor.execute(update,(result,usr,pwd))
         self._connection.commit()
 
     def retrieve_value_user(self, email, pwd, column):
-        select = "SELECT {} from Leaks where email = '{}' and password = '{}'".format(column, email, pwd)
-        self._cursor.execute(select)
+        select = "SELECT {} from {} where email = %s and password = %s".format(column, self._maria_table)
+        self._cursor.execute(select,(email,pwd))
         user = self._cursor.fetchone()[0]
         return user
 
     def retrieve_users(self, column, value):
-        select = "SELECT email,password from Leaks where {} is {}".format(column, value)
-        self._cursor.execute(select)
+        select = "SELECT email,password from {} where {} = %s".format(self._maria_table, column)
+        self._cursor.execute(select,(value,))
         users = self._cursor.fetchall()
         return users
 
     def retrieve_all(self):
-        select = "SELECT email, password from Leaks "
+        select = "SELECT email, password from {} ".format(self._maria_table)
         self._cursor.execute(select)
         users = self._cursor.fetchall()
         return users
-
-

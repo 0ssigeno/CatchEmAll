@@ -27,11 +27,11 @@ class ExecuteSites:
         self.threading_sites = threading_sites
         self.local = local
 
-    def execute_thread(self, nordvpn: NordVpn, users: list, functions_to_execute: list, columns: list):
+    def execute_thread(self, users: list, functions_to_execute: list, columns: list):
         """
         function_to_execute is the function that the user define for scrape a single site
         """
-        mr = ManageRequests(nordvpn=nordvpn, local=self.local)
+        mr = ManageRequests(local=self.local)
         mr.set_random_proxy()
         mr.set_random_user_agent()
 
@@ -81,10 +81,9 @@ class ExecuteSites:
         log.info("We are going to test {} users".format(len(users)))
         list_users = chunks(users, self.max_threads)
         threads = []
-        nordvpn = NordVpn(request_before_change_server=15)
         log.info("Every thread has {} user".format(len(list_users[0])))
         for users in list_users:
-            t = threading.Thread(target=self.execute_thread, args=(nordvpn, users, functions_to_execute, columns,))
+            t = threading.Thread(target=self.execute_thread, args=( users, functions_to_execute, columns,))
             threads.append(t)
         for t in threads:
             t.start()
