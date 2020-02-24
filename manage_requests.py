@@ -20,7 +20,7 @@ class ManageRequests:
         self._proxyUsr = None
         self._proxyPwd = None
         self._ua = UserAgent()
-        log.info("Init MR")
+        log.info("Init MR done")
 
     def update_headers(self, headers: dict):
         self._req.headers.update(headers)

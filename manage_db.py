@@ -13,7 +13,7 @@ CONFIG_FILE = ".config.ini"
 class ManageDb:
     def __init__(self, local=True):
         self.local = local
-        self._maria_usr, self._maria_pwd, self._maria_host, self._maria_db, self._maria_table = self._init_creds()
+        self._maria_usr, self._maria_pwd, self._maria_host, self._maria_db, self._maria_table = self._init_credentials()
         self._regexCred = re.compile(
             "[a-zA-Z0-9\\._-]+@[a-zA-Z0-9\\.-]+\.[a-zA-Z]{2,6}[\\rn :\_\-]{1,10}[a-zA-Z0-9\_\-]+")
         self._privileges = {}
@@ -26,7 +26,7 @@ class ManageDb:
         self._cursor.close()
         self._connection.close()
 
-    def _init_creds(self):
+    def _init_credentials(self):
         try:
             with open(CONFIG_FILE, "r") as f:
                 json_data = f.read()
@@ -116,18 +116,25 @@ class ManageDb:
 
     def update_result(self, usr, pwd, column, result):
         update = "UPDATE {} SET {} = %s WHERE email= %s AND password= %s".format(self._maria_table, column)
-        self._cursor.execute(update,(result,usr,pwd))
+        self._cursor.execute(update, (result, usr, pwd))
         self._connection.commit()
 
     def retrieve_value_user(self, email, pwd, column):
         select = "SELECT {} from {} where email = %s and password = %s".format(column, self._maria_table)
-        self._cursor.execute(select,(email,pwd))
+        self._cursor.execute(select, (email, pwd))
         user = self._cursor.fetchone()[0]
+        return user
+
+    def retrieve_values_user(self, email, pwd, *columns):
+        select = "SELECT {} from {} where email = %s and password = %s".format(columns, self._maria_table)
+        self._cursor.execute(select, (email, pwd))
+        user = self._cursor.fetchone()[0]
+        print(user)
         return user
 
     def retrieve_users(self, column, value):
         select = "SELECT email,password from {} where {} = %s".format(self._maria_table, column)
-        self._cursor.execute(select,(value,))
+        self._cursor.execute(select, (value,))
         users = self._cursor.fetchall()
         return users
 
