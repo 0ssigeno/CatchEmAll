@@ -114,11 +114,6 @@ class ManageDb:
         self._cursor.execute("ALTER TABLE {} ADD COLUMN IF NOT EXISTS {} BOOLEAN".format(self._maria_table, column))
         self._connection.commit()
 
-    def add_columns(self, columns: list):
-        columns = ", ".join(columns)
-        self._cursor.execute("ALTER TABLE {} ADD COLUMN IF NOT EXISTS {} BOOLEAN".format(self._maria_table, columns))
-        self._connection.commit()
-
     def update_result(self, usr: str, pwd: str, column: str, result: bool):
         update = "UPDATE {} SET {} = %s WHERE email= %s AND password= %s".format(self._maria_table, column)
         self._cursor.execute(update, (result, usr, pwd))

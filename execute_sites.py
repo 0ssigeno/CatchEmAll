@@ -56,7 +56,7 @@ class ExecuteSites:
             pwd: str = credentials[1]
             with concurrent.futures.ThreadPoolExecutor(max_workers=self._max_threading_functions) as executor:
                 # Creating columns if are not present in the db
-                mr.db.add_columns(sites)
+                [mr.db.add_column(column) for column in sites]
                 # Retrieving the values on every sits
 
                 values_user_on_site = mr.db.retrieve_values_user(usr, pwd, sites)

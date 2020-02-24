@@ -25,7 +25,7 @@ if __name__ == "__main__":
 
     es = ExecuteSites(max_threads_users=MAX_THREADS, max_req_same_proxy=MAX_REQ_SAME_PROXY, max_threading_functions=1,
                       local=LOCAL)
-    if PATH_POPULATION is not "":
+    if PATH_POPULATION != "":
         es.populate_db(PATH_POPULATION)
     log.info("Starting with {} threads and changing proxy after {} requests ".format(MAX_THREADS, MAX_REQ_SAME_PROXY))
     es.test_sites(functions_to_executes, funcs_names)
