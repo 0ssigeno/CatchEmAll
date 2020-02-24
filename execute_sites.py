@@ -1,10 +1,11 @@
-import logging as log
 import concurrent.futures
+import logging as log
+
 from manage_db import ManageDb
 from manage_requests import ManageRequests
 
 
-def chunks(seq, num):
+def chunks(seq: list, num: int):
     """
     Should be good to divide the array in equal parts for the threads
     """
@@ -19,7 +20,8 @@ def chunks(seq, num):
 
 class ExecuteSites:
 
-    def __init__(self, max_req_same_proxy=5, max_threads_users=2, max_threading_functions=1, local=True):
+    def __init__(self, max_req_same_proxy: int = 5, max_threads_users: int = 2, max_threading_functions: int = 1,
+                 local: bool = True):
         self._max_req_same_proxy = max_req_same_proxy
         self._max_threading_users = max_threads_users
         self._max_threading_functions = max_threading_functions
@@ -34,10 +36,16 @@ class ExecuteSites:
                 log.info("Account valid {}:{} on site {} ".format(usr, pwd, key))
             mr.db.update_result(usr, pwd, key, results[key])
 
+    # TODO maybe is better to have a map[site]: function
     def __execute_thread(self, list_credentials: list, functions_to_execute: list, sites: list):
         """
-        function_to_execute is the function that the user define for scrape a single site
+        CONSTRAINT: values_user_on_site[i] is the value on sites[i] retrieved using function_to_execute[i]
+
+        list_credentials are the users to be tested
+        functions_to_execute are the the functions created by collaborators to scrape sites
+        sites are the sites to be scraped
         """
+
         mr = ManageRequests(local=self._local)
         mr.set_random_proxy()
         mr.set_random_user_agent()
@@ -47,11 +55,11 @@ class ExecuteSites:
             usr: str = credentials[0]
             pwd: str = credentials[1]
             with concurrent.futures.ThreadPoolExecutor(max_workers=self._max_threading_functions) as executor:
-                # todo optimize via sql
-                [mr.db.add_column(site) for site in sites]
-                # todo optimize via sql
-                # values_user_on_site=mr.db.retrieve_values_user(usr,pwd,sites)
-                values_user_on_site = [mr.db.retrieve_value_user(usr, pwd, site) for site in sites]
+                # Creating columns if are not present in the db
+                mr.db.add_columns(sites)
+                # Retrieving the values on every sits
+
+                values_user_on_site = mr.db.retrieve_values_user(usr, pwd, sites)
 
                 future_exs = {executor.submit(function_to_execute, usr, pwd, mr)
                               : function_to_execute.__name__ for value, function_to_execute in
@@ -92,7 +100,7 @@ class ExecuteSites:
             for thread in concurrent.futures.as_completed(threads):
                 thread.result()
 
-    def populate_db(self, path):
+    def populate_db(self, path: str):
         db = ManageDb(local=self._local)
         db.populate_db(path)
         db.close_connection()

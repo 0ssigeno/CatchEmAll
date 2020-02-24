@@ -11,7 +11,7 @@ CONFIG_FILE = ".config.ini"
 
 
 class ManageDb:
-    def __init__(self, local=True):
+    def __init__(self, local: bool = True):
         self.local = local
         self._maria_usr, self._maria_pwd, self._maria_host, self._maria_db, self._maria_table = self._init_credentials()
         self._regexCred = re.compile(
@@ -94,7 +94,7 @@ class ManageDb:
         log.info("Table {} checked".format(self._maria_table))
         self._connection.commit()
 
-    def populate_db(self, mypath):
+    def populate_db(self, mypath: str):
 
         for name_file in listdir(mypath):
             file_path = join(mypath, name_file)
@@ -110,29 +110,34 @@ class ManageDb:
                         self._cursor.execute(insert, creds)
         self._connection.commit()
 
-    def add_column(self, name):
-        self._cursor.execute("ALTER TABLE {} ADD COLUMN IF NOT EXISTS {} BOOLEAN".format(self._maria_table, name))
+    def add_column(self, column: str):
+        self._cursor.execute("ALTER TABLE {} ADD COLUMN IF NOT EXISTS {} BOOLEAN".format(self._maria_table, column))
         self._connection.commit()
 
-    def update_result(self, usr, pwd, column, result):
+    def add_columns(self, columns: list):
+        columns = ", ".join(columns)
+        self._cursor.execute("ALTER TABLE {} ADD COLUMN IF NOT EXISTS {} BOOLEAN".format(self._maria_table, columns))
+        self._connection.commit()
+
+    def update_result(self, usr: str, pwd: str, column: str, result: bool):
         update = "UPDATE {} SET {} = %s WHERE email= %s AND password= %s".format(self._maria_table, column)
         self._cursor.execute(update, (result, usr, pwd))
         self._connection.commit()
 
-    def retrieve_value_user(self, email, pwd, column):
+    def retrieve_value_user(self, email: str, pwd: str, column: str):
         select = "SELECT {} from {} where email = %s and password = %s".format(column, self._maria_table)
         self._cursor.execute(select, (email, pwd))
-        user = self._cursor.fetchone()[0]
-        return user
+        value_user = self._cursor.fetchone()[0]
+        return value_user
 
-    def retrieve_values_user(self, email, pwd, *columns):
+    def retrieve_values_user(self, email, pwd, columns: list):
+        columns = ", ".join(columns)
         select = "SELECT {} from {} where email = %s and password = %s".format(columns, self._maria_table)
         self._cursor.execute(select, (email, pwd))
-        user = self._cursor.fetchone()[0]
-        print(user)
-        return user
+        values_user = list(self._cursor.fetchone())
+        return values_user
 
-    def retrieve_users(self, column, value):
+    def retrieve_users(self, column: str, value: bool):
         select = "SELECT email,password from {} where {} = %s".format(self._maria_table, column)
         self._cursor.execute(select, (value,))
         users = self._cursor.fetchall()
