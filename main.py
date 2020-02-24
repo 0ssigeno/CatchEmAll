@@ -22,7 +22,7 @@ if __name__ == "__main__":
     for func in funcs_names:
         functions_to_executes.append(getattr(functions, func))
 
-    es = ExecuteSites(max_threads=MAX_THREADS, max_req_same_proxy=MAX_REQ_SAME_PROXY, threading_sites=False,
+    es = ExecuteSites(max_threads_users=MAX_THREADS, max_req_same_proxy=MAX_REQ_SAME_PROXY, max_threading_functions=1,
                       local=LOCAL)
     if PATH_POPULATION:
         es.populate_db(PATH_POPULATION)
