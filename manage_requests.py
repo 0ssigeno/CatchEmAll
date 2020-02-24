@@ -1,16 +1,24 @@
 import logging as log
 import random
 import re
+from enum import Enum
 
 import cloudscraper
 from fake_useragent import UserAgent
 from mysql.connector.errors import ProgrammingError
 from requests.exceptions import ProxyError
 
-from Proxies.nordvpn import NordVpn
+from Proxies.proxy_broker import ProxyBroker
 from manage_db import ManageDb
 
-PROXIES_IMPLEMENTED = {"nordvpnProxy": NordVpn()}
+
+class Proxies(Enum):
+    NordVpn = "nordvpnProxy"
+    ProxyBroker = "proxy_broken"
+
+
+# PROXIES_IMPLEMENTED = {"nordvpnProxy": NordVpn(),"proxy_broken":ProxyBroker()}
+PROXIES_IMPLEMENTED = {Proxies.ProxyBroker: ProxyBroker()}
 
 
 class ManageRequests:
@@ -69,6 +77,9 @@ class ManageRequests:
                     log.info("Setting proxy to {}@{}:80".format(usr, server))
                 else:
                     log.warning("No proxy available for nordvpn")
+            elif provider == Proxies.ProxyBroker:
+                server = PROXIES_IMPLEMENTED[provider].get_random_server()
+                print(server)
             else:
                 raise Exception("Provider not implemented")
         else:

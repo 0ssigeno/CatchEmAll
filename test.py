@@ -1,3 +1,5 @@
+import time
+
 from functions import *
 from manage_requests import ManageRequests
 
@@ -7,6 +9,8 @@ if __name__ == "__main__":
     usr = creds.split(":")[0]
     pwd = creds.split(":")[1]
     mr = ManageRequests()
+    time.sleep(3)
     mr.set_random_proxy()
     mr.set_random_user_agent()
+
     netflix(usr, pwd, mr)
