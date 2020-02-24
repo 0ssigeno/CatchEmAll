@@ -33,27 +33,27 @@ class ManageDb:
                 data = json.loads(json_data)
         except JSONDecodeError and FileNotFoundError:
             data = {"local": {}, "remote": {}}
-            local_usr = input("Local usr")
-            local_pwd = input("Local pwd")
-            local_db = input("Local db")
-            local_table = input("Local table")
+            local_usr = input("Please insert local mariadb usr\n")
+            local_pwd = input("Please insert local mariadb pwd\n")
+            local_db = input("Please insert local mariadb db\n")
+            local_table = input("Please insert local mariadb table\n")
             data["local"]["usr"] = local_usr
             data["local"]["pwd"] = local_pwd
             data["local"]["host"] = "localhost"
             data["local"]["db"] = local_db
             data["local"]["table"] = local_table
 
-            remote_usr = input("Remote usr")
-            remote_pwd = input("Remote pwd")
-            remote_host = input("Remote host")
-            remote_db = input("Remote db")
-            remote_table = input("Remote table")
+            remote_usr = input("Please insert remote mariadb usr\n")
+            remote_pwd = input("Please insert remote mariadb pwd\n")
+            remote_host = input("Please insert remote mariadb host\n")
+            remote_db = input("Please insert remote mariadb db\n")
+            remote_table = input("Please insert remote mariadb table\n")
             data["remote"]["usr"] = remote_usr
             data["remote"]["pwd"] = remote_pwd
             data["remote"]["host"] = remote_host
             data["remote"]["db"] = remote_db
             data["remote"]["table"] = remote_table
-            with open(CONFIG_FILE, "wb") as f:
+            with open(CONFIG_FILE, "w") as f:
                 f.write(json.dumps(data))
         if self.local:
             json_parsed = data["local"]

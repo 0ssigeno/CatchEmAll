@@ -6,7 +6,7 @@ import cloudscraper
 from fake_useragent import UserAgent
 from requests.exceptions import ProxyError
 
-from Vpn.nordvpn import NordVpn
+from Proxies.nordvpn import NordVpn
 from manage_db import ManageDb
 
 PROXIES_IMPLEMENTED = {"nordvpnProxy":NordVpn()}
