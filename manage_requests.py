@@ -1,6 +1,7 @@
 import logging as log
 import random
 import re
+from enum import Enum
 
 import cloudscraper
 from fake_useragent import UserAgent
@@ -8,9 +9,19 @@ from mysql.connector.errors import ProgrammingError
 from requests.exceptions import ProxyError
 
 from Proxies.nordvpn import NordVpn
+from Proxies.tor import Tor
 from manage_db import ManageDb
 
-PROXIES_IMPLEMENTED = {"nordvpnProxy": NordVpn()}
+
+class Proxies(Enum):
+    NORDVPN = "nordvpnProxy"
+    TOR = "torProxy"
+
+
+# TODO magari un parametro passato da ES su ogni quanto cambiare paese
+PROXIES_IMPLEMENTED = {Proxies.NORDVPN: NordVpn(requests_before_change_country=10),
+                       Proxies.TOR: Tor()}
+WEIGHTS = [0.8, 0.2]
 
 
 class ManageRequests:
@@ -41,6 +52,7 @@ class ManageRequests:
     """
         nordvpnProxy disponibile
     """
+
     def set_random_proxy(self):
         """
         Retrieve a random vpn provider
@@ -49,8 +61,11 @@ class ManageRequests:
         Set the proxy and the value for the class
         """
         if PROXIES_IMPLEMENTED:
-            provider = random.choice(list(PROXIES_IMPLEMENTED.keys()))
-            if provider == "nordvpnProxy":
+            # We have weights now, so you can use the favourite proxy more
+            provider = random.choices(list(PROXIES_IMPLEMENTED.keys()), weights=WEIGHTS, k=1)
+
+            # TODO se domani crasha, fai la retrieve di un enum e non del valore corrispondente
+            if provider == Proxies.NORDVPN:
                 users = None
                 try:
                     users = self.db.retrieve_users(provider, True)
@@ -69,6 +84,9 @@ class ManageRequests:
                     log.info("Setting proxy to {}@{}:80".format(usr, server))
                 else:
                     log.warning("No proxy available for nordvpn")
+            elif provider == Proxies.TOR:
+                server = PROXIES_IMPLEMENTED[provider].get_random_server()
+
             else:
                 raise Exception("Provider not implemented")
         else:

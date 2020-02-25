@@ -1,7 +1,6 @@
-import logging as log
-
 import functions
 from execute_sites import ExecuteSites
+import logging as log
 
 MAX_THREADS = 1
 MAX_REQ_SAME_PROXY = 5

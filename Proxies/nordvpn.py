@@ -11,11 +11,11 @@ class NordVpn:
     Describe
     """
 
-    def __init__(self, request_before_change_country=10):
+    def __init__(self, requests_before_change_country=10):
 
         self.default_max_load = 50
         self.countries = self.__get_countries_id()
-        self.request_before_change_country = request_before_change_country
+        self.request_before_change_country = requests_before_change_country
         server_name = random.choice(list(self.countries.keys()))
         self.servers = self.__get_working_server(server_name)
         self.count_request = 0
