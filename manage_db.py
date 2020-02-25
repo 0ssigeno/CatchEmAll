@@ -1,13 +1,12 @@
-import json
+import getpass
 import logging as log
 import re
-from json import JSONDecodeError
 from os import listdir
 from os.path import isfile, join
 
 import mysql.connector as mariadb
 
-CONFIG_FILE = ".config.ini"
+from config import read_mariadb, write_mariadb
 
 
 class ManageDb:
@@ -28,39 +27,23 @@ class ManageDb:
 
     def _init_credentials(self):
         try:
-            with open(CONFIG_FILE, "r") as f:
-                json_data = f.read()
-                data = json.loads(json_data)
-        except JSONDecodeError and FileNotFoundError:
-            data = {"local": {}, "remote": {}}
-            local_usr = input("Please insert local mariadb usr\n")
-            local_pwd = input("Please insert local mariadb pwd\n")
-            local_db = input("Please insert local mariadb db\n")
-            local_table = input("Please insert local mariadb table\n")
-            data["local"]["usr"] = local_usr
-            data["local"]["pwd"] = local_pwd
-            data["local"]["host"] = "localhost"
-            data["local"]["db"] = local_db
-            data["local"]["table"] = local_table
-
-            remote_usr = input("Please insert remote mariadb usr\n")
-            remote_pwd = input("Please insert remote mariadb pwd\n")
-            remote_host = input("Please insert remote mariadb host\n")
-            remote_db = input("Please insert remote mariadb db\n")
-            remote_table = input("Please insert remote mariadb table\n")
-            data["remote"]["usr"] = remote_usr
-            data["remote"]["pwd"] = remote_pwd
-            data["remote"]["host"] = remote_host
-            data["remote"]["db"] = remote_db
-            data["remote"]["table"] = remote_table
-            with open(CONFIG_FILE, "w") as f:
-                f.write(json.dumps(data))
-        if self.local:
-            json_parsed = data["local"]
-        else:
-            json_parsed = data["remote"]
-        return json_parsed["usr"], json_parsed["pwd"], json_parsed["host"], json_parsed["db"], json_parsed["table"]
-
+            return read_mariadb(self.local)
+        except KeyError:
+            if self.local:
+                usr = input("Please insert local mariadb usr\n")
+                pwd = getpass.getpass("Please insert local mariadb pwd\n")
+                host = "localhost"
+                db = input("Please insert local mariadb db\n")
+                table = input("Please insert local mariadb table\n")
+            else:
+                usr = input("Please insert remote mariadb usr\n")
+                pwd = getpass.getpass("Please insert remote mariadb pwd\n")
+                host = input("Please insert remote mariadb host\n")
+                db = input("Please insert remote mariadb db\n")
+                table = input("Please insert remote mariadb table\n")
+            write_mariadb(self.local, usr, pwd, host, db, table)
+            return usr, pwd, host, db, table
+    
     def __connection(self):
         mariadb_connection = mariadb.connect(host=self._maria_host, user=self._maria_usr, password=self._maria_pwd,
                                              database=self._maria_db)
@@ -104,11 +87,14 @@ class ManageDb:
                     itr = self._regexCred.finditer(text)
                     for elem in itr:
                         elem = elem.group()
-                        creds = (elem.split(":")[0], elem.split(":")[1])
-                        log.info("Inserting {}".format(creds))
+                        credentials = (elem.split(":")[0], elem.split(":")[1])
+                        log.info("Inserting {}".format(credentials))
                         insert = "INSERT IGNORE INTO {}(email,password) VALUES (%s,%s) ".format(self._maria_table)
-                        self._cursor.execute(insert, creds)
-        self._connection.commit()
+                        self._cursor.execute(insert, credentials)
+                self._connection.commit()
+            else:
+                # TODO recursive
+                pass
 
     def add_column(self, column: str):
         self._cursor.execute("ALTER TABLE {} ADD COLUMN IF NOT EXISTS {} BOOLEAN".format(self._maria_table, column))

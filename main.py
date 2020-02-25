@@ -11,7 +11,7 @@ FUNCTIONS_FILE = "functions.py"
 if __name__ == "__main__":
     for handler in log.root.handlers[:]:
         log.root.removeHandler(handler)
-    log.basicConfig( format='%(threadName)s %(message)s', level=log.INFO)
+    log.basicConfig(format='%(threadName)s %(message)s', level=log.INFO)
     funcs_names = []
     with open(FUNCTIONS_FILE, "r") as f:
         for line in f.readlines():

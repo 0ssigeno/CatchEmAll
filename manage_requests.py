@@ -1,6 +1,7 @@
 import logging as log
 import random
 import re
+from enum import Enum
 
 import cloudscraper
 from fake_useragent import UserAgent
@@ -8,9 +9,19 @@ from mysql.connector.errors import ProgrammingError
 from requests.exceptions import ProxyError
 
 from Proxies.nordvpn import NordVpn
+from Proxies.tor import Tor
 from manage_db import ManageDb
 
-PROXIES_IMPLEMENTED = {"nordvpnProxy": NordVpn()}
+
+class Proxies(Enum):
+    NORDVPN = "nordvpnProxy"
+    TOR = "torProxy"
+
+
+# TODO magari un parametro passato da ES su ogni quanto cambiare paese
+PROXIES_IMPLEMENTED = {Proxies.NORDVPN.value: NordVpn(requests_before_change_country=10),
+                       Proxies.TOR.value: Tor()}
+WEIGHTS = [0.5, 0.5]
 
 
 class ManageRequests:
@@ -38,9 +49,9 @@ class ManageRequests:
         cookies = re.split("[;=]", cookies)
         return dict(zip(*[iter(cookies)] * 2))
 
-    """
-        nordvpnProxy disponibile
-    """
+    def set_proxy(self, proxy: str):
+        self._req.proxies = {"https": proxy}
+
     def set_random_proxy(self):
         """
         Retrieve a random vpn provider
@@ -49,12 +60,13 @@ class ManageRequests:
         Set the proxy and the value for the class
         """
         if PROXIES_IMPLEMENTED:
-            provider = random.choice(list(PROXIES_IMPLEMENTED.keys()))
-            if provider == "nordvpnProxy":
+            # We have weights now, so you can use the favourite proxy more
+            provider: str = random.choices(list(PROXIES_IMPLEMENTED), weights=WEIGHTS, k=1)[0]
+            if provider == Proxies.NORDVPN.value:
                 users = None
                 try:
                     users = self.db.retrieve_users(provider, True)
-                except ProgrammingError as e:
+                except ProgrammingError:
                     log.warning("You don't have a nordvpnProxy column, BE CAREFUL you are scraping with you IP")
                     self.db.add_column(provider)
                 if users:
@@ -62,13 +74,16 @@ class ManageRequests:
                     usr = credentials[0]
                     pwd = credentials[1]
                     server = PROXIES_IMPLEMENTED[provider].get_random_server()
-                    self._req.proxies = {"https": "https://{}:{}@{}:80".format(usr, pwd, server)}
+                    self.set_proxy("https://{}:{}@{}:80".format(usr, pwd, server))
                     self._proxyName = provider
                     self._proxyUsr = usr
                     self._proxyPwd = pwd
-                    log.info("Setting proxy to {}@{}:80".format(usr, server))
+                    log.info("Setting nordvpn proxy to {}@{}:80".format(usr, server))
                 else:
                     log.warning("No proxy available for nordvpn")
+            elif provider == Proxies.TOR.value:
+                self.set_proxy(PROXIES_IMPLEMENTED[provider].get_random_server())
+                log.info("Setting tor proxy")
             else:
                 raise Exception("Provider not implemented")
         else:
@@ -90,8 +105,6 @@ class ManageRequests:
             if self._proxyUsr:
                 log.warning("Proxy {} {} not valid".format(self._proxyUsr, self._proxyPwd))
                 self.db.update_result(self._proxyUsr, self._proxyPwd, self._proxyName, False)
-            else:
-                log.warning("Big uff ")
             self.set_random_proxy()
             return self.get_with_checks(site, headers=headers, cookies=cookies)
         except ConnectionError and ConnectionAbortedError and ConnectionRefusedError and ConnectionResetError:
@@ -111,8 +124,6 @@ class ManageRequests:
             if self._proxyUsr:
                 log.warning("Proxy {} {} not valid".format(self._proxyUsr, self._proxyPwd))
                 self.db.update_result(self._proxyUsr, self._proxyPwd, self._proxyName, False)
-            else:
-                log.warning("Big uff ")
             self.set_random_proxy()
             return self.post_with_checks(site, data=data, cookies=cookies, headers=headers)
         except ConnectionError and ConnectionAbortedError and ConnectionRefusedError and ConnectionResetError:
