@@ -53,7 +53,7 @@ RUN \
 
 # Install Python and Python deps
 RUN \
-  apt-get install -y pythonpython3 python3-pip python-dev && \
+  apt-get install -y python3 python3-pip python-dev && \
   pip3 install -r /opt/CatchEmAll/requirements.txt && \
   rm -rf /var/lib/apt/lists/*
 
