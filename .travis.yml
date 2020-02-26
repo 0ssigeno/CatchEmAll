@@ -7,7 +7,6 @@ before_script:
 
 script:
     - docker build -t catchemall --build-arg "SSH_PRIVATE_KEY=$(cat ~/.ssh/Docker)" .
-    - docker run catchemall
 
 after_script:
     - docker images
