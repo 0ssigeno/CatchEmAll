@@ -1,3 +1,10 @@
+language: python
+jobs:
+    include:
+        - python: 3.6
+          dist: trusty
+        - python: 3.8
+          dist: xenial
 sudo: required
 env:
   global:
