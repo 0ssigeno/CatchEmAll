@@ -1,5 +1,4 @@
 import logging as log
-
 import requests
 
 from Proxies.nordvpn import NordVpn
