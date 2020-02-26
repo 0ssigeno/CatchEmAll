@@ -2,9 +2,11 @@ sudo: required
 services:
     - docker
 
+before_script:  
+  - echo -e "Host github.com\n\tHostName github.com\n\tUser git\n\tIdentityFile ~/.ssh/Docker\n" >> ~/.ssh/config
 
 script:
-    - docker build -t catchemall .
+    - docker build -t catchemall --build-arg "SSH_PRIVATE_KEY=$(cat ~/.ssh/Docker)" .
     - docker run catchemall
 
 after_script:
