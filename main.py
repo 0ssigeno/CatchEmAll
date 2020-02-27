@@ -9,6 +9,7 @@ LOCAL = True
 FUNCTIONS_FILE = "functions.py"
 
 if __name__ == "__main__":
+
     for handler in log.root.handlers[:]:
         log.root.removeHandler(handler)
     log.basicConfig(format='%(threadName)s %(message)s', level=log.INFO)

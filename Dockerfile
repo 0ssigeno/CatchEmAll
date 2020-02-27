@@ -12,6 +12,12 @@ ARG MARIADB_KEY_URL='https://mariadb.org/mariadb_release_signing_key.asc'
 ARG MARIADB_APT_REPO='deb [arch=amd64,arm64,ppc64el] http://ftp.nluug.nl/db/mariadb/repo/10.4/ubuntu bionic main' 
 
 
+#DEFAULT VALUE FOR BUILD SUCCESS
+ARG TOR_PWD='PLEASECHANGEWHENUSING'
+ARG TOR_KEY_URL='https://deb.torproject.org/torproject.org/A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89.asc'
+ARG TOR_APT_REPO='deb  https://deb.torproject.org/torproject.org bionic main'
+
+
 # Install MariaDB
 RUN \
   apt-get update && \
@@ -26,6 +32,21 @@ RUN \
   echo "mysql -e 'CREATE USER \"root\"@\"%\"; GRANT ALL PRIVILEGES ON *.* TO \"root\"@\"%\" WITH GRANT OPTION; FLUSH PRIVILEGES;'" >> /tmp/config && \
   bash /tmp/config && \
   rm -f /tmp/config
+
+
+EXPOSE 9050 9051
+# Install Tor
+RUN \
+  apt-key adv --fetch-keys "$TOR_KEY_URL" && \
+  add-apt-repository "$TOR_APT_REPO" && \
+  apt-get update && \
+  apt-get install -y tor deb.torproject.org-keyring && \
+  echo "CookieAuthentication 1\nCookieAuthFile /var/lib/tor/control_auth_cookie\nCookieAuthFileGroupReadable 1\nDataDirectoryGroupReadable 1" >>/etc/tor/torrc  && \
+  echo "HashedControlPassword $(tor --hash-password ${TOR_PWD} | sed '2q;d')" >> /etc/tor/torrc && \
+  echo "ControlSocket /var/lib/tor/control_socket\nControlSocketsGroupWritable 1\nDataDirectoryGroupReadable 1\nCacheDirectoryGroupReadable 1" >> /etc/tor/torrc&& \
+  echo "ControlPort 9051" >> /etc/tor/torrc && \
+  service tor start
+
 
 # Install Python and Python deps
 RUN \
