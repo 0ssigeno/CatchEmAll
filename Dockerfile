@@ -12,18 +12,18 @@ RUN apt-get update
 RUN apt-get install -y git
 
 # add credentials on build
-ARG SSH_PRIVATE_KEY
-RUN mkdir /root/.ssh/
+#ARG SSH_PRIVATE_KEY
+#RUN mkdir /root/.ssh/
 # Run docker build in this way: docker build --build-arg "SSH_PRIVATE_KEY=$(cat ~/.ssh/id_rsa)"
-RUN echo "${SSH_PRIVATE_KEY}" > /root/.ssh/id_rsa && chmod 600 /root/.ssh/id_rsa
+#RUN echo "${SSH_PRIVATE_KEY}" > /root/.ssh/id_rsa && chmod 600 /root/.ssh/id_rsa
 
 # Make sure your domain is accepted
-RUN touch /root/.ssh/known_hosts
-RUN ssh-keyscan github.com >> /root/.ssh/known_hosts
+#RUN touch /root/.ssh/known_hosts
+#RUN ssh-keyscan github.com >> /root/.ssh/known_hosts
 
 # Clone repo
-RUN git clone git@github.com:0ssigeno/CatchEmAll.git
-
+#RUN git clone git@github.com:0ssigeno/CatchEmAll.git
+RUN git clone https://github.com/0ssigeno/CatchEmAll.git
 
 #################################################################################
 

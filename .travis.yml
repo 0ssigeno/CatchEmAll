@@ -1,12 +1,40 @@
+language: python
+jobs:
+    include:
+        - python: 3.6
+          dist: trusty
+        - python: 3.8
+          dist: xenial
 sudo: required
+env:
+  global:
+    - secure: "AxlHRUDurisdzAiq6dvEuhtf2XXh8uPmkD46OhNi1UDlY2w4mrhPbXnoCMA13NfRcYFzn0j8INp5yzP415BFTIjEi3BzSEgexPhUSdYMb5QIXVSszzLHiAS4I+S7CxaZpV4nn+YYRNickCgnvFiDZpMh3ru/02PNPyJPylQNRqCaDK5DWJ9r6pf/JAApHpsBtXOutVzhvKW8EF6Q2wpVQ0SrFrY5vxLib3L33PIM+wmZC/ZNFxZZlEhX3jdpVtTWkNnLbqcDA+lGus6OnblLFD1H7k0xkd7fR9SAdb6Gv86P0vg6QGC0JJVaU9gXS+P3aJLO5eO8ZNYakjwnPash3yGphB3Sr+IV5iadKwFZFhhC5fD9khWMhtnSMXTK2lKO3bNsBvpg9nCAWc97vHEMZqmaBh3h+sTE2SLzumVj3kYT/Qz3kOzKqdgt40kTc7KC/XdyBNB9fuN6uDWw5waX0K159MFaD0U0+6plgim3fSGSsrASfW0/PgQBU+Baucf/NEIccawYd7fUHSV4AbmWR0Vi45zdpleju3RkOY0SAxF9TBibfwXHpabR29NdwpQfE936m/FBBSrOUboDla4pkaxlGW4xKM2lnpiQjMcvcoCYR+DsBWeSKt5NSs+hkNKjl/jn5Hpi/8HRBdpiAKZPGFQNQ+eU+lFZREAPgFOq9RQ="
+    
 services:
     - docker
 
+before_script:  
+  - echo -e "Host github.com\n\tHostName github.com\n\tUser git\n\tIdentityFile ~/.ssh/Docker\n" >> ~/.ssh/config
 
 script:
-    - docker build -t catchemall .
-    - docker run catchemall
+    - docker build -t catchemall --build-arg "SSH_PRIVATE_KEY=$(cat ~/.ssh/Docker)" .
 
 after_script:
     - docker images
 
+after_success:
+  - |
+
+       declare -r SSH_FILE="$(mktemp -u $HOME/.ssh/b7b764f1ad33)"
+
+       openssl aes-256-cbc \
+         -K $encrypted_b7b764f1ad33_key \
+         -iv $encrypted_b7b764f1ad33_iv \
+         -in ".travis/travis_key.enc" \
+         -out "$SSH_FILE" -d
+
+       chmod 600 "$SSH_FILE" \
+         && printf "%s\n" \
+              "Host github.com" \
+              "  IdentityFile $SSH_FILE" \
+              "  LogLevel ERROR" >> ~/.ssh/config
