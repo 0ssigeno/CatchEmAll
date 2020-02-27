@@ -1,0 +1,12 @@
+sudo: required
+services:
+    - docker
+
+
+script:
+    - docker build -t catchemall .
+    - docker run catchemall
+
+after_script:
+    - docker images
+
