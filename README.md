@@ -1,5 +1,5 @@
 # CatchEmAll
-[![Build Status](https://travis-ci.com/0ssigeno/CatchEmAll.svg?branch=master)](https://travis-ci.com/0ssigeno/CatchEmAll)
+![Docker Image CI](https://github.com/0ssigeno/CatchEmAll/workflows/Docker%20Image%20CI/badge.svg)
 [![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
 
 The aim of this project is to test random credentials found in data dumps. 
