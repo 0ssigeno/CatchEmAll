@@ -1,5 +1,6 @@
 import configparser
 
+
 CONFIG_FILE = ".config.ini"
 
 config = configparser.ConfigParser()
@@ -34,3 +35,19 @@ def read_mariadb(local: bool):
     config.read(CONFIG_FILE)
     part_config = config[name]
     return part_config["usr"], part_config["pwd"], part_config["host"], part_config["db"], part_config["table"]
+
+
+def write_main(local: bool, max_threads: int, max_threading_functions: int, max_req_same_proxy: int,
+               functions_file: str, path_population: str):
+    config["MAIN"] = {"local": local, "max_threads": max_threads, "max_threading_functions": max_threading_functions,
+                      "max_req_same_proxy": max_req_same_proxy, "functions_file": functions_file,
+                      "path_population": path_population}
+    with open(CONFIG_FILE, 'w') as configfile:
+        config.write(configfile)
+
+
+def read_main():
+    config.read(CONFIG_FILE)
+    main = config["MAIN"]
+    return main["local"], main["max_threads"], main["max_threading_functions"], main["max_req_same_proxy"], \
+           main["functions_file"], main["path_population"]

@@ -26,8 +26,8 @@ class NordVpn:
             self.count_request = 0
             server_name = random.choice(list(self.countries.keys()))
             self.servers = self.__get_working_server(server_name)
-            log.info("Nordvpn: changing country")
-        log.info("Nordvpn: changing server")
+            log.debug("Nordvpn: changing country")
+        log.debug("Nordvpn: changing server")
         return random.choice(self.servers)
 
     @staticmethod

@@ -21,7 +21,7 @@ class Proxies(Enum):
 # TODO magari un parametro passato da ES su ogni quanto cambiare paese
 PROXIES_IMPLEMENTED = {Proxies.NORDVPN.value: NordVpn(requests_before_change_country=10),
                        Proxies.TOR.value: Tor()}
-WEIGHTS = [0.5, 0.5]
+WEIGHTS = [0.7, 0.3]
 
 
 class ManageRequests:
@@ -78,12 +78,12 @@ class ManageRequests:
                     self._proxyName = provider
                     self._proxyUsr = usr
                     self._proxyPwd = pwd
-                    log.info("Setting nordvpn proxy to {}@{}:80".format(usr, server))
+                    log.debug("Setting nordvpn proxy to {}@{}:80".format(usr, server))
                 else:
                     log.warning("No proxy available for nordvpn")
             elif provider == Proxies.TOR.value:
                 self.set_proxy(PROXIES_IMPLEMENTED[provider].get_random_server())
-                log.info("Setting tor proxy")
+                log.debug("Setting tor proxy")
             else:
                 raise Exception("Provider not implemented")
         else:
@@ -95,7 +95,7 @@ class ManageRequests:
         """
         random_ua = self._ua.random
         self.update_headers({"User-Agent": random_ua})
-        log.info("UserAgent selected {}".format(random_ua))
+        log.debug("UserAgent selected {}".format(random_ua))
 
     def get_with_checks(self, site: str, cookies: dict = None, headers: dict = None):
         try:
