@@ -38,9 +38,9 @@ def read_mariadb(local: bool):
 
 
 def write_main(local: bool, max_threads: int, max_threading_functions: int, max_req_same_proxy: int,
-               functions_file: str, path_population: str):
+               pokedex: str, path_population: str):
     config["MAIN"] = {"local": local, "max_threads": max_threads, "max_threading_functions": max_threading_functions,
-                      "max_req_same_proxy": max_req_same_proxy, "functions_file": functions_file,
+                      "max_req_same_proxy": max_req_same_proxy, "pokedex": pokedex,
                       "path_population": path_population}
     with open(CONFIG_FILE, 'w') as configfile:
         config.write(configfile)
@@ -50,4 +50,4 @@ def read_main():
     config.read(CONFIG_FILE)
     main = config["MAIN"]
     return main["local"], main["max_threads"], main["max_threading_functions"], main["max_req_same_proxy"], \
-           main["functions_file"], main["path_population"]
+           main["pokedex"], main["path_population"]

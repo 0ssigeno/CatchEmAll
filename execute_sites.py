@@ -83,6 +83,7 @@ class ExecuteSites:
                 mr.set_random_user_agent()
 
     def test_sites(self, functions_to_execute: list, columns: list):
+
         """
             Create a column for the site that wants to be tested, if is not already present
             Retrieve every users that must be tested

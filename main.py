@@ -1,51 +1,63 @@
 import logging as log
 
-import functions
 from config import read_main, write_main
 from execute_sites import ExecuteSites
 
 LOG_LEVEL = log.INFO
-if __name__ == "__main__":
+
+
+def main():
     for handler in log.root.handlers[:]:
         log.root.removeHandler(handler)
 
     log.basicConfig(format='%(threadName)s %(message)s', level=LOG_LEVEL)
 
     try:
-        LOCAL, MAX_THREADS, MAX_THREADING_FUNCTIONS, MAX_REQ_SAME_PROXY, FUNCTIONS_FILE, PATH_POPULATION = read_main()
-        MAX_THREADS = int(MAX_THREADS)
-        MAX_THREADING_FUNCTIONS = int(MAX_THREADING_FUNCTIONS)
-        MAX_REQ_SAME_PROXY = int(MAX_REQ_SAME_PROXY)
-        log.info("Read config file : LOCAL {} , MAX_THREADS {}, MAX_THREADING_FUNCTIONS {}, MAX_REQ_SAME_PROXY {}, "
-                 "FUNCTIONS_FILE {}, PATH_POPULATION {}".format(LOCAL, MAX_THREADS, MAX_THREADING_FUNCTIONS,
-                                                                MAX_REQ_SAME_PROXY, FUNCTIONS_FILE, PATH_POPULATION))
+        local, max_threads, max_threading_functions, max_req_same_proxy, pokedex, path_population = read_main()
+        max_threads = int(max_threads)
+        max_threading_functions = int(max_threading_functions)
+        max_req_same_proxy = int(max_req_same_proxy)
+        log.info("Read config file : local {} , max_threads {}, max_threading_functions {}, max_req_same_proxy {}, "
+                 "pokedex {}, path_population {}".format(local, max_threads, max_threading_functions,
+                                                         max_req_same_proxy, pokedex, path_population))
 
     except KeyError:
-        LOCAL = True
-        MAX_THREADS = 1
-        MAX_THREADING_FUNCTIONS = 1
-        MAX_REQ_SAME_PROXY = 5
-        FUNCTIONS_FILE = "functions.py"
-        PATH_POPULATION = ""
-        write_main(LOCAL, MAX_THREADS, MAX_THREADING_FUNCTIONS, MAX_REQ_SAME_PROXY, FUNCTIONS_FILE, PATH_POPULATION)
-        log.info("Wrote config file : LOCAL {} , MAX_THREADS {}, MAX_THREADING_FUNCTIONS {}, MAX_REQ_SAME_PROXY {}, "
-                 "FUNCTIONS_FILE {}, PATH_POPULATION {}".format(LOCAL, MAX_THREADS, MAX_THREADING_FUNCTIONS,
-                                                                MAX_REQ_SAME_PROXY, FUNCTIONS_FILE, PATH_POPULATION))
+        local = True
+        max_threads = 1
+        max_threading_functions = 1
+        max_req_same_proxy = 5
+        pokedex = "PokedexOwned"
+        path_population = ""
+        write_main(local, max_threads, max_threading_functions, max_req_same_proxy, pokedex, path_population)
+        log.info("Wrote config file : local {} , max_threads {}, max_threading_functions {}, max_req_same_proxy {}, "
+                 "pokedex {}, path_population {}".format(local, max_threads, max_threading_functions,
+                                                         max_req_same_proxy, pokedex, path_population))
 
-    funcs_names = []
-    with open(FUNCTIONS_FILE, "r") as f:
-        for line in f.readlines():
-            if line.startswith("def"):
-                funcs_names.append(line.split("(")[0].split(" ")[1])
-
-    functions_to_executes = []
-    for func in funcs_names:
-        functions_to_executes.append(getattr(functions, func))
-
-    es = ExecuteSites(max_threads_users=MAX_THREADS, max_req_same_proxy=MAX_REQ_SAME_PROXY,
-                      max_threading_functions=MAX_THREADING_FUNCTIONS,
-                      local=LOCAL)
-    if PATH_POPULATION != "":
+    funcs = dynamic_loader(pokedex)
+    funcs_names = list(funcs.keys())
+    functions_to_executes = list(funcs.values())
+    print(funcs_names)
+    print(functions_to_executes)
+    es = ExecuteSites(max_threads_users=max_threads, max_req_same_proxy=max_req_same_proxy,
+                      max_threading_functions=max_threading_functions,
+                      local=local)
+    if path_population != "":
         log.info("Populating db")
-        es.populate_db(PATH_POPULATION)
+        es.populate_db(path_population)
     es.test_sites(functions_to_executes, funcs_names)
+
+
+def dynamic_loader(path):
+    functions = {}
+    import os
+    lst = os.listdir(path)
+    lst = [elem for elem in lst if elem.endswith(".py")]
+    for f in lst:
+        f = os.path.splitext(f)[0]
+        module = __import__(path + "." + f, fromlist=["*"])
+        functions[f] = getattr(module, f)
+    return functions
+
+
+if __name__ == "__main__":
+    main()

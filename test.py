@@ -1,6 +1,6 @@
 import logging as log
 
-import functions
+from PokedexOwned.youporn import youporn
 from manage_requests import ManageRequests
 
 if __name__ == "__main__":
@@ -8,4 +8,4 @@ if __name__ == "__main__":
     creds = "usr:pwd"
     usr = creds.split(":")[0]
     pwd = creds.split(":")[1]
-    print(functions.pornhub(usr, pwd, ManageRequests()))
+    print(youporn(usr, pwd, ManageRequests()))
