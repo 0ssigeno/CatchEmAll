@@ -1,9 +1,9 @@
 from bs4 import BeautifulSoup
 
-from manage_requests import ManageRequests
+from CatchEmAll.Requests.proxy_requests import ProxyRequest
 
 
-def linkedin(usr: str, pwd: str, mr: ManageRequests):
+def linkedin(usr: str, pwd: str, mr: ProxyRequest):
     get_url = "https://www.linkedin.com/login"
     post_url = "https://www.linkedin.com/checkpoint/lg/login-submit"
 

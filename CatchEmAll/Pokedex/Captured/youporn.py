@@ -1,9 +1,9 @@
 from logging import debug
 
-from manage_requests import ManageRequests
+from CatchEmAll.Requests.proxy_requests import ProxyRequest
 
 
-def youporn(usr: str, pwd: str, mr: ManageRequests):
+def youporn(usr: str, pwd: str, mr: ProxyRequest):
     post_url = "https://www.youporn.com/login/"
     # Post request to login
     res = mr.post_with_checks(post_url,
@@ -23,5 +23,5 @@ def youporn(usr: str, pwd: str, mr: ManageRequests):
     else:
         debug("Youporn problem")
         mr.set_random_proxy()
-        mr.set_random_user_agent()
+        mr._set_random_user_agent()
         return youporn(usr, pwd, mr)

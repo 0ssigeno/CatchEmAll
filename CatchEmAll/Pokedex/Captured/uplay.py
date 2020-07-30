@@ -1,10 +1,10 @@
 import logging as log
 from base64 import b64encode
 
-from manage_requests import ManageRequests
+from CatchEmAll.Requests.proxy_requests import ProxyRequest
 
 
-def uplay(usr: str, pwd: str, mr: ManageRequests):
+def uplay(usr: str, pwd: str, mr: ProxyRequest):
     site_post = "https://public-ubiservices.ubi.com/v3/profiles/sessions"
     credentials = str.encode(usr + ":" + pwd)
     encoding = b64encode(credentials).decode()
@@ -24,10 +24,10 @@ def uplay(usr: str, pwd: str, mr: ManageRequests):
         elif "Too many calls" in decode:
             log.debug("Uplay problem")
             mr.set_random_proxy()
-            mr.set_random_user_agent()
+            mr._set_random_user_agent()
             return uplay(usr, pwd, mr)
         else:
             log.debug("Uplay problem")
             mr.set_random_proxy()
-            mr.set_random_user_agent()
+            mr._set_random_user_agent()
             return uplay(usr, pwd, mr)

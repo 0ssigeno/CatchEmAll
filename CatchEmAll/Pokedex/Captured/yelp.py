@@ -2,10 +2,10 @@ from logging import debug
 
 from bs4 import BeautifulSoup
 
-from manage_requests import ManageRequests
+from CatchEmAll.Requests.proxy_requests import ProxyRequest
 
 
-def yelp(usr: str, pwd: str, mr: ManageRequests):
+def yelp(usr: str, pwd: str, mr: ProxyRequest):
     site_url = "https://www.yelp.co.uk/login"
 
     # Get main page with csrf_token

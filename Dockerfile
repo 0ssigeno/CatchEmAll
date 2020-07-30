@@ -13,7 +13,7 @@ ARG MARIADB_APT_REPO='deb [arch=amd64,arm64,ppc64el] http://ftp.nluug.nl/db/mari
 
 
 #DEFAULT VALUE FOR BUILD SUCCESS
-ARG TOR_PWD='PLEASECHANGEWHENUSING'
+ARG TOR_PWD='PLEASECHANGEME'
 ARG TOR_KEY_URL='https://deb.torproject.org/torproject.org/A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89.asc'
 ARG TOR_APT_REPO='deb  https://deb.torproject.org/torproject.org bionic main'
 
@@ -62,7 +62,7 @@ RUN \
 WORKDIR /data
 
 # Define default command.
-CMD ["python3", "/opt/CatchEmAll/main.py"]
+CMD ["python3", "/opt/CatchEmAll/CatchEmAll/core.py"]
 
 # Expose ports.
 #EXPOSE 3306

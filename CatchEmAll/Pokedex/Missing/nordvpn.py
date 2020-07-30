@@ -1,9 +1,9 @@
-from manage_requests import ManageRequests
+from CatchEmAll.Requests.proxy_requests import ProxyRequest
 
 
-def nordvpn(usr: str, pwd: str, mr: ManageRequests):
+def nordvpn(usr: str, pwd: str, mr: ProxyRequest):
     """
-    Custom functions must have 3 params: username and password to check, and a ManageRequests object
+    Custom functions must have 3 params: username and password to check, and a ProxyRequest object
     The MR object has all the primitives that you need.
     Remember to update the database via mr.db
     """

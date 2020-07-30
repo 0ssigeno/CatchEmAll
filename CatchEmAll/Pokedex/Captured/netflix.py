@@ -1,9 +1,9 @@
 from bs4 import BeautifulSoup
 
-from manage_requests import ManageRequests
+from CatchEmAll.Requests.proxy_requests import ProxyRequest
 
 
-def netflix(usr: str, pwd: str, mr: ManageRequests):
+def netflix(usr: str, pwd: str, mr: ProxyRequest):
     site_url = "https://www.netflix.com/Login"
 
     res = mr.get_with_checks(site_url, headers={'User-Agent': 'Mozilla/5.0'})
