@@ -4,7 +4,7 @@ import random
 import numpy
 import requests
 
-from CatchEmAll.Requests.proxy import Proxy
+from catchEmAll.proxyrequests.proxy import Proxy
 
 
 class NordVpn(Proxy):

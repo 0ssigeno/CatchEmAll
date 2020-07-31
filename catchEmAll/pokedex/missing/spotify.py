@@ -1,4 +1,4 @@
-from CatchEmAll.Requests.proxy_requests import ProxyRequest
+from catchEmAll.proxyrequests.proxy_requests import ProxyRequest
 
 
 def spotify(usr: str, pwd: str, mr: ProxyRequest):

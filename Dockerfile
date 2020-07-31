@@ -1,5 +1,5 @@
 #
-# CatchEmAll Dockerfile
+# catchEmAll Dockerfile
 #
 # https://github.com/0ssigeno/CatchEmAll
 #
@@ -47,13 +47,13 @@ RUN \
   service tor start
 
 RUN \
-    apt-get install -y python3 python3-pip python-dev git
+    apt-get install -y python3 python3-pip python-dev git vim
 
 RUN \
     git clone -b develop https://github.com/0ssigeno/CatchEmAll \
     && cd CatchEmAll \
     && pip3 install -r requirements.txt \
-    && python3 setup.py install \
+    && python3 setup.py install --user \
     && rm -rf /tmp/*
 
 

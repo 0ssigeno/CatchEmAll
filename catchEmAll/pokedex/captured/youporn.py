@@ -1,6 +1,6 @@
 from logging import debug
 
-from CatchEmAll.Requests.proxy_requests import ProxyRequest
+from catchEmAll.proxyrequests.proxy_requests import ProxyRequest
 
 
 def youporn(usr: str, pwd: str, mr: ProxyRequest):

@@ -1,7 +1,7 @@
 from stem import Signal
 from stem.control import Controller
 
-from CatchEmAll.Requests.proxy import Proxy
+from catchEmAll.proxyrequests.proxy import Proxy
 
 
 # FIXME come gestisco multithread e tor?

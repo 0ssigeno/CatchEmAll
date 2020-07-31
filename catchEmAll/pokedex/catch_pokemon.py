@@ -1,8 +1,8 @@
 import random
 from multiprocessing import Process
 
-from CatchEmAll.Pokedex.pokeball import Pokeball
-from CatchEmAll.utils import *
+from catchEmAll.pokedex.pokeball import Pokeball
+from catchEmAll.utils import *
 
 
 class CatchPokemon:

@@ -6,8 +6,8 @@ from fake_useragent import UserAgent
 from mysql.connector.errors import ProgrammingError
 from requests.exceptions import ProxyError, ConnectTimeout
 
-from CatchEmAll.Database.db_manager import DbManager
-from CatchEmAll.Requests.Proxies import *
+from catchEmAll.database.db_manager import DbManager
+from catchEmAll.proxyrequests.proxies import *
 
 
 class ProxyRequest:
@@ -109,7 +109,7 @@ class ProxyRequest:
                                     **kwargs)
             else:
                 raise NotImplementedError("only get and post please")
-            
+
             success = True
         # username and pwd do not work
         except ProxyError as e:

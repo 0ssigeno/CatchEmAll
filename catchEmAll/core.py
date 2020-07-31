@@ -1,17 +1,15 @@
 import importlib
 import logging
 
-from CatchEmAll.Database.db_manager import DbManager
-from CatchEmAll.Pokedex.catch_pokemon import CatchPokemon
-
-__version__ = "0.1"
+from catchEmAll.database.db_manager import DbManager
+from catchEmAll.pokedex.catch_pokemon import CatchPokemon
 
 
 class Ash:
     format_log = "%(asctime)s - %(name)s - %(funcName)s - %(levelname)s - %(message)s"
 
     def __init__(self, max_threads: int = 2, max_req_same_proxy: int = 5,
-                 pokedex_path: str = "CatchEmAll.Pokedex.Captured"):
+                 pokedex_path: str = "catchEmAll.pokedex.captured"):
         logging.basicConfig(format=self.format_log)
         self._max_threads = max_threads
         self._max_req_proxy = max_req_same_proxy

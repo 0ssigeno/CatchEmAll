@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 
-from CatchEmAll.Requests.proxy_requests import ProxyRequest
+from catchEmAll.proxyrequests.proxy_requests import ProxyRequest
 
 
 def netflix(usr: str, pwd: str, pr: ProxyRequest):

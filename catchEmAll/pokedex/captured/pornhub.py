@@ -3,7 +3,7 @@ from json import loads
 
 from bs4 import BeautifulSoup
 
-from CatchEmAll.Requests.proxy_requests import ProxyRequest
+from catchEmAll.proxyrequests.proxy_requests import ProxyRequest
 
 
 def pornhub(usr: str, pwd: str, mr: ProxyRequest):

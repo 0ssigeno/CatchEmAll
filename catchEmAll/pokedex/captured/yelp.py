@@ -2,7 +2,7 @@ from logging import debug
 
 from bs4 import BeautifulSoup
 
-from CatchEmAll.Requests.proxy_requests import ProxyRequest
+from catchEmAll.proxyrequests.proxy_requests import ProxyRequest
 
 
 def yelp(usr: str, pwd: str, mr: ProxyRequest):

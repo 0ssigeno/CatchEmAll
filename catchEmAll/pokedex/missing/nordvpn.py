@@ -1,4 +1,4 @@
-from CatchEmAll.Requests.proxy_requests import ProxyRequest
+from catchEmAll.proxyrequests.proxy_requests import ProxyRequest
 
 
 def nordvpn(usr: str, pwd: str, mr: ProxyRequest):

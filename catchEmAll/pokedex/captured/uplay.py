@@ -1,7 +1,7 @@
 import logging as log
 from base64 import b64encode
 
-from CatchEmAll.Requests.proxy_requests import ProxyRequest
+from catchEmAll.proxyrequests.proxy_requests import ProxyRequest
 
 
 def uplay(usr: str, pwd: str, mr: ProxyRequest):

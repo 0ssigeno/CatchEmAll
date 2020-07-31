@@ -28,7 +28,7 @@ class DbManager:
 
             self._cursor.execute("CREATE DATABASE IF NOT EXISTS {}".format(self.db))
             self._connection.commit()
-            log.debug("Database checked")
+            log.debug("database checked")
             self._cursor.execute("USE {}".format(self.db))
             self._cursor.execute("""CREATE TABLE IF NOT EXISTS `{}` (
                                     `id` int(11) NOT NULL AUTO_INCREMENT,

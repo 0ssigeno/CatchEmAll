@@ -1,8 +1,8 @@
 import logging as log
 import random
 
-from CatchEmAll.Database.db_manager import DbManager
-from CatchEmAll.Requests.proxy_requests import ProxyRequest
+from catchEmAll.database.db_manager import DbManager
+from catchEmAll.proxyrequests.proxy_requests import ProxyRequest
 
 
 class Pokeball:

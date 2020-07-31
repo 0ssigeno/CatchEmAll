@@ -1,8 +1,5 @@
 from setuptools import setup, find_packages
 
-from CatchEmAll.core import __version__ as cea_version
-
-VERSION = cea_version
 
 with open('requirements.txt') as f:
     required = f.read().splitlines()
@@ -11,10 +8,10 @@ with open("README.md", "r", encoding="utf-8") as ld:
     long_description = ld.read()
 
 setup(
-    name='CatchEmAll',
-    version=VERSION,
+    name='catchEmAll',
+    version="0.1",
 
-    description='Qiling is an advanced binary emulation framework that cross-platform-architecture',
+    description='CatchEmAll is a testing tool to understand where the same password has been used',
     long_description=long_description,
     long_description_content_type="text/markdown",
     maintainer='Simone Berni (0ssigeno)',
