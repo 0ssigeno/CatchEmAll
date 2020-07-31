@@ -24,7 +24,7 @@ class DbManager:
     def initialize(self):
         if self.local:
             self._connection = mariadb_connection = mariadb.connect(host=self.host, user=self.usr, password=self.pwd)
-            self._cursor = mariadb_connection.cursor()
+            self._cursor = mariadb_connection.cursor(buffered=True)
 
             self._cursor.execute("CREATE DATABASE IF NOT EXISTS {}".format(self.db))
             self._connection.commit()
@@ -43,7 +43,7 @@ class DbManager:
 
     def login(self):
         self._connection = mariadb.connect(host=self.host, user=self.usr, password=self.pwd, database=self.db)
-        self._cursor = self._connection.cursor()
+        self._cursor = self._connection.cursor(buffered=True)
 
     def close_connection(self):
         self._cursor.close()
@@ -119,3 +119,7 @@ class DbManager:
         self._cursor.execute(select)
         users = self._cursor.fetchall()
         return users
+
+    def delete_db(self, db):
+        delete = "drop database {}".format(db)
+        self._cursor.execute(delete)

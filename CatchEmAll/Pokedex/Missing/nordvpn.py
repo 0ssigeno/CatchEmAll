@@ -5,7 +5,7 @@ def nordvpn(usr: str, pwd: str, mr: ProxyRequest):
     """
     Custom functions must have 3 params: username and password to check, and a ProxyRequest object
     The MR object has all the primitives that you need.
-    Remember to update the database via mr.db
+    Remember to update the database via pr.db
     """
     # TODO fix
     site_post = "https://ucp.nordvpn.com/api/v1/users/login"

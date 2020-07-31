@@ -4,6 +4,8 @@ import logging
 from CatchEmAll.Database.db_manager import DbManager
 from CatchEmAll.Pokedex.catch_pokemon import CatchPokemon
 
+__version__ = "0.1"
+
 
 class Ash:
     format_log = "%(asctime)s - %(name)s - %(funcName)s - %(levelname)s - %(message)s"

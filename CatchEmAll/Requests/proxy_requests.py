@@ -26,6 +26,10 @@ class ProxyRequest:
         self._proxy = None
         log.debug("Init PR done")
 
+    def allow_tor(self, tor_passphrase: str):
+        self._canUseTor = True
+        self._tor_passphrase = tor_passphrase
+
     def get(self, url: str, params=None, **kwargs):
         kwargs["params"] = params
         return self._proxy_wrapper(url, "get", 0, **kwargs)
@@ -40,7 +44,6 @@ class ProxyRequest:
             self._counter = 0
             self._set_random_user_agent()
             self._use_proxy(random.choice(self.proxy_providers), nation)
-            log.debug("PR: Changing proxy")
         self._counter += 1
 
     def _set_proxy(self, proxy: str):
@@ -66,17 +69,18 @@ class ProxyRequest:
             except AttributeError:
                 self._nordvpn = NordVpn()
             self._proxy = self._nordvpn
-            self._set_proxy(self._proxy.server(usr, pwd, nation))
+            self._set_proxy(self._proxy.get_server(usr, pwd, nation))
+            log.debug("Proxy set to {}".format(self.proxies))
         else:
             raise NotImplementedError("Provider {} not implemented".format(provider))
 
     def _try_tor(self):
         self._proxy = None
         if self._canUseTor:
-            self._set_proxy(Tor(self._tor_passphrase).server())
+            self._set_proxy(Tor(self._tor_passphrase).get_server())
             log.warning("Setting tor proxy")
         else:
-            # TODO settare default proxy
+            self.proxies = None
             log.warning("Scraping with you IP")
 
     def _set_random_user_agent(self):
@@ -84,7 +88,8 @@ class ProxyRequest:
         self._ua = random_ua
         log.debug("UserAgent selected {}".format(random_ua))
 
-    def _proxy_wrapper(self, url: str, request_type: str, times: int, max_repeat: int = 5, **kwargs):
+    def _proxy_wrapper(self, url: str, request_type: str, times: int, max_repeat: int = 10, **kwargs):
+        timeout = 4
         success = False
         res = None
         try:
@@ -96,23 +101,25 @@ class ProxyRequest:
             headers["User-Agent"] = self._ua
             if request_type == "get":
                 params = kwargs.pop("params") if "params" in kwargs else None
-                res = requests.get(url, params=params, timeout=3, proxies=self.proxies, headers=headers, **kwargs)
+                res = requests.get(url, params=params, timeout=timeout, proxies=self.proxies, headers=headers, **kwargs)
             elif request_type == "post":
                 data = kwargs.pop("data") if "data" in kwargs else None
                 json = kwargs.pop("json") if "json" in kwargs else None
-                res = requests.post(url, data=data, json=json, timeout=3, proxies=self.proxies, headers=headers,
+                res = requests.post(url, data=data, json=json, timeout=timeout, proxies=self.proxies, headers=headers,
                                     **kwargs)
             else:
                 raise NotImplementedError("only get and post please")
+            
             success = True
         # username and pwd do not work
         except ProxyError as e:
             if self._proxy is not None:
-                log.debug("Proxy {} {} not valid".format(self._proxy.usr, self._proxy.pwd))
-                self._db.update_result(self._proxy.usr, self._proxy.pwd, False, self._proxy.name)
+                log.warning("Proxy {} {} not valid".format(self._proxy.usr, self._proxy.pwd))
+                self._db.update_result(self._proxy.usr, self._proxy.pwd, False, self._proxy.provider)
         # server do not work
         except ConnectTimeout as e:
             if self._proxy is not None:
+                log.warning("Removing proxy {}".format(self._proxy.server))
                 self._proxy.remove_proxy()
 
         except ConnectionError and ConnectionAbortedError and ConnectionRefusedError and ConnectionResetError:

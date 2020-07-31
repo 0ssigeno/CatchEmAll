@@ -3,32 +3,33 @@ from bs4 import BeautifulSoup
 from CatchEmAll.Requests.proxy_requests import ProxyRequest
 
 
-def netflix(usr: str, pwd: str, mr: ProxyRequest):
+def netflix(usr: str, pwd: str, pr: ProxyRequest):
     site_url = "https://www.netflix.com/Login"
 
-    res = mr.get_with_checks(site_url, headers={'User-Agent': 'Mozilla/5.0'})
+    res = pr.get(site_url)
 
     if res:
         soup = BeautifulSoup(res.text, features="html.parser")
         auth_url = soup.find('input', attrs={'name': 'authURL'})['value']
 
         # Post request to login
-        res = mr.post_with_checks(site_url,
-                                  data={'email': usr,
-                                        'password': pwd,
-                                        'rememberMe': True,
-                                        'flow': 'websiteSignUp',
-                                        'mode': 'login',
-                                        'action': 'loginAction',
-                                        'withFields': 'email,password,rememberMe,nextPage',
-                                        'authURL': auth_url,
-                                        'nextPage': 'https://www.netflix.com/viewingactivity'
-                                        })
-        mr.clear_cookies()
+        res = pr.post(site_url,
+                      data={'email': usr,
+                            'password': pwd,
+                            'rememberMe': True,
+                            'flow': 'websiteSignUp',
+                            'mode': 'login',
+                            'action': 'loginAction',
+                            'withFields': 'email,password,rememberMe,nextPage',
+                            'authURL': auth_url,
+                            'nextPage': 'https://www.netflix.com/viewingactivity'
+                            })
+        # pr.
+        # pr.clear_cookies()
         if 'Login' not in res.url:
             return True
         else:
             return False
     else:
-        mr.clear_cookies()
+        # pr.clear_cookies()
         return False

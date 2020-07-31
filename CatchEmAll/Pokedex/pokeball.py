@@ -1,4 +1,5 @@
 import logging as log
+import random
 
 from CatchEmAll.Database.db_manager import DbManager
 from CatchEmAll.Requests.proxy_requests import ProxyRequest
@@ -9,20 +10,24 @@ class Pokeball:
     def __init__(self, usr: str, pwd: str, host: str, db: str):
         self._dbm = DbManager(usr, pwd, host, db)
         self._dbm.login()
-        self._rm = ProxyRequest(self._dbm)
-        self.hide(force=True)
+        self.pr = ProxyRequest(self._dbm)
+
+    def allow_tor(self, tor_passphrase: str):
+        self.pr.allow_tor(tor_passphrase)
 
     def hide(self, force=False):
-        self._rm.hide(force=force)
+        self.pr.hide(force=force)
 
-    def get_proxy(self) -> ProxyRequest:
-        return self._rm
+    def catch(self, function):
+        res = function(self.usr, self.pwd, self.pr)
+        self.save(res)
+        self.hide()
 
     def find_user(self, columns: []) -> bool:
         for column in columns:
             res = self._dbm.retrieve_users(column, None)
             if res:
-                self.usr, self.pwd = res[0]
+                self.usr, self.pwd = random.choice(res)
                 self.site = column
                 return True
         return False

@@ -12,21 +12,25 @@ class CatchPokemon:
         self._db_usr, self._db_pwd, self._db_host, self._db_db = db_usr, db_pwd, db_host, db_db
 
     def _catch(self, functions: []):
-        random.shuffle(functions)
         pokeball = Pokeball(self._db_usr, self._db_pwd, self._db_host, self._db_db)
-        while pokeball.find_user([func.__name__ for func in functions]):
+        if self.tor:
+            pokeball.allow_tor(self.tor_password)
+        pokeball.hide(force=True)
+        funcs_names = [func.__name__ for func in functions]
+        while pokeball.find_user(funcs_names):
             func = nameToFunc(pokeball.site, functions)
-            result = func(pokeball.get_proxy(), pokeball.usr, pokeball.pwd)
-            pokeball.save(result)
-            pokeball.hide()
+            pokeball.catch(func)
+            random.shuffle(funcs_names)
         else:
             return
 
-    def catchEmAll(self, functions: [], timeout: int = 10):
-        processes = []
+    def catchEmAll(self, functions: [], tor: bool = False, tor_password: str = None, timeout: int = 10):
+        self.tor = tor
+        self.tor_password = tor_password
+        self.processes = []
         for i in range(self._max_threads):
             p = Process(target=self._catch, args=(functions,))
-            processes.append(p)
+            self.processes.append(p)
             p.start()
         for i in range(self._max_threads):
-            processes[i].join(timeout=timeout)
+            self.processes[i].join(timeout=timeout)
