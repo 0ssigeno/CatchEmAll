@@ -39,6 +39,7 @@ RUN \
   apt-key adv --fetch-keys "$TOR_KEY_URL" && \
   add-apt-repository "$TOR_APT_REPO" && \
   apt-get update && \
+  apt-get install -y libevent-* && \
   apt-get install -y tor deb.torproject.org-keyring && \
   echo "CookieAuthentication 1\nCookieAuthFile /var/lib/tor/control_auth_cookie\nCookieAuthFileGroupReadable 1\nDataDirectoryGroupReadable 1" >>/etc/tor/torrc  && \
   echo "HashedControlPassword $(tor --hash-password ${TOR_PWD} | sed '2q;d')" >> /etc/tor/torrc && \
@@ -52,8 +53,11 @@ RUN \
 RUN \
     git clone -b develop https://github.com/0ssigeno/CatchEmAll \
     && cd CatchEmAll \
-    && pip3 install -r requirements.txt \
-    && python3 setup.py install --user \
+    && pip3 install -r requirements.txt
+
+RUN \
+    cd CatchEmAll \
+    python3 setup.py install --user\
     && rm -rf /tmp/*
 
 
