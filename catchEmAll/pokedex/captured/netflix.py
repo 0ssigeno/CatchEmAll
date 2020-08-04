@@ -1,35 +1,31 @@
+import requests
 from bs4 import BeautifulSoup
 
-from catchEmAll.proxyrequests.proxy_requests import ProxyRequest
+from catchEmAll.pokedex.pokeball import Pokeball
 
 
-def netflix(usr: str, pwd: str, pr: ProxyRequest):
+def netflix(poke: Pokeball):
+    usr, pwd = poke.get_account()
     site_url = "https://www.netflix.com/Login"
 
-    res = pr.get(site_url)
+    res = poke.requests_function(requests.get, site_url)
 
-    if res:
-        soup = BeautifulSoup(res.text, features="html.parser")
-        auth_url = soup.find('input', attrs={'name': 'authURL'})['value']
+    soup = BeautifulSoup(res.text, features="html.parser")
+    auth_url = soup.find('input', attrs={'name': 'authURL'})['value']
 
-        # Post request to login
-        res = pr.post(site_url,
-                      data={'email': usr,
-                            'password': pwd,
-                            'rememberMe': True,
-                            'flow': 'websiteSignUp',
-                            'mode': 'login',
-                            'action': 'loginAction',
-                            'withFields': 'email,password,rememberMe,nextPage',
-                            'authURL': auth_url,
-                            'nextPage': 'https://www.netflix.com/viewingactivity'
-                            })
-        # pr.
-        # pr.clear_cookies()
-        if 'Login' not in res.url:
-            return True
-        else:
-            return False
+    # Post request to login
+    res = poke.requests_function(requests.post, site_url,
+                                 data={'email': usr,
+                                       'password': pwd,
+                                       'rememberMe': True,
+                                       'flow': 'websiteSignUp',
+                                       'mode': 'login',
+                                       'action': 'loginAction',
+                                       'withFields': 'email,password,rememberMe,nextPage',
+                                       'authURL': auth_url,
+                                       'nextPage': 'https://www.netflix.com/viewingactivity'
+                                       })
+    if 'Login' not in res.url:
+        return True
     else:
-        # pr.clear_cookies()
         return False

@@ -28,12 +28,11 @@ class Ash:
         self._dbm.populate_db(path)
 
     def init(self, usr: str, pwd: str, host: str, db: str):
-        self._cp = CatchPokemon(usr, pwd, host, db)
         self._dbm = DbManager(usr, pwd, host, db)
         self._dbm.initialize()
         for func in self._pokemons:
             self._dbm.add_column(func.__name__)
-        self._dbm.close_connection()
+        self._cp = CatchPokemon(self._dbm)
 
     def start(self, timeout=10):
         self._cp.catchEmAll(self._pokemons, timeout=timeout)

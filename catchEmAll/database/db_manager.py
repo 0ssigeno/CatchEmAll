@@ -1,13 +1,18 @@
 import logging as log
 import re
+from multiprocessing import Lock
 from os import listdir
 from os.path import isfile, join
 
 import mysql.connector as mariadb
+from mysql.connector.errors import ProgrammingError
 
+
+# TODO fare decoratore con mutex per le funzioni
 
 class DbManager:
     def __init__(self, usr: str, pwd: str, host: str, db: str):
+        self.mutex = Lock()
         self.local = True if host == "localhost" else False
         self.usr = usr
         self.pwd = pwd
@@ -68,58 +73,85 @@ class DbManager:
                 pass
 
     def add_users(self, credentials: [tuple]):
+        self.mutex.acquire()
         insert = "INSERT IGNORE INTO {}(email,password) VALUES (%s,%s) ".format(self.table)
         for creds in credentials:
             self._cursor.execute(insert, creds)
         self._connection.commit()
+        self.mutex.release()
 
     def add_table(self, table):
+        self.mutex.acquire()
         self._cursor.execute("""CREATE TABLE IF NOT EXISTS `{}` (
                                             `id` int(11) NOT NULL REFERENCES Accounts(id),
                                            PRIMARY KEY (id)
                                            )""".format(table))
-
         self._connection.commit()
+        self.mutex.release()
 
     def add_column(self, column: str):
+        self.mutex.acquire()
         self._cursor.execute("ALTER TABLE {} ADD COLUMN IF NOT EXISTS {} BOOLEAN".format(self.table, column))
         self._connection.commit()
+        self.mutex.release()
 
     def update_result(self, usr: str, pwd: str, result: bool, column: str):
-        # update the Account user and insert in the corresponding table
+        self.mutex.acquire()
+
         update = "UPDATE {} SET {} = %s WHERE email= %s AND password= %s".format(self.table, column)
         self._cursor.execute(update, (result, usr, pwd))
         self._connection.commit()
+        self.mutex.release()
 
     def retrieve_value_user(self, email: str, pwd: str, column: str) -> str:
+        self.mutex.acquire()
+
         select = "SELECT {} from {} where email = %s and password = %s".format(column, self.table)
         self._cursor.execute(select, (email, pwd))
         value_user = self._cursor.fetchone()[0]
+        self.mutex.release()
+
         return value_user
 
     def retrieve_values_user(self, email: str, pwd: str, columns: list) -> list:
+        self.mutex.acquire()
+
         columns = ", ".join(columns)
         select = "SELECT {} from {} where email = %s and password = %s".format(columns, self.table)
         self._cursor.execute(select, (email, pwd))
         values_user = list(self._cursor.fetchone())
+        self.mutex.release()
+
         return values_user
 
     def retrieve_users(self, column: str, value: bool or None):
+        self.mutex.acquire()
         if value is None:
             comparator = "is"
         else:
             comparator = "="
-        select = "SELECT email,password from {} where {} {} %s".format(self.table, column, comparator)
-        self._cursor.execute(select, (value,))
-        users = self._cursor.fetchall()
+        try:
+            select = "SELECT email,password from {} where {} {} %s".format(self.table, column, comparator)
+            self._cursor.execute(select, (value,))
+            users = self._cursor.fetchall()
+        except ProgrammingError as e:
+            log.warning("You don't have a {} column".format(column))
+            users = []
+        self.mutex.release()
         return users
 
     def retrieve_all(self):
+        self.mutex.acquire()
+
         select = "SELECT email, password from {} ".format(self.table)
         self._cursor.execute(select)
         users = self._cursor.fetchall()
+        self.mutex.release()
+
         return users
 
     def delete_db(self, db):
+        self.mutex.acquire()
         delete = "drop database {}".format(db)
         self._cursor.execute(delete)
+        self.mutex.release()

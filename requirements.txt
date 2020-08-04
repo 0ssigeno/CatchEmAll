@@ -1,9 +1,11 @@
 stem
 numpy
 coverage
+beautifulsoup4
 cloudscraper==1.2.46
 fake-useragent==0.1.11
 mysql==0.0.2
 mysql-connector-python==8.0.21
 mysqlclient==2.0.1
 requests==2.24.0
+pysocks

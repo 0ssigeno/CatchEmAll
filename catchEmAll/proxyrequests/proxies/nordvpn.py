@@ -18,8 +18,11 @@ class NordVpn(Proxy):
         self._servers: {} = {server_name: self._get_working_server(server_name)}
         log.debug("NordProxy Ready")
 
-    def remove_proxy(self):
-        self._servers[self._nation].remove(self._current_server)
+    def remove_server(self):
+        for nation in self._servers:
+            if self._current_server in nation:
+                self._servers[self._nation].remove(self._current_server)
+                break
 
     def _get_random_server(self, usr: str, pwd: str, nation: str = None):
         if nation and nation in self._countries.keys():

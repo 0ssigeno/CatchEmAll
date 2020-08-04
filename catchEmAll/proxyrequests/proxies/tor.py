@@ -9,7 +9,7 @@ from catchEmAll.proxyrequests.proxy import Proxy
 
 class Tor(Proxy):
 
-    def remove_proxy(self):
+    def remove_server(self):
         pass
 
     def __init__(self, passphrase: str, controller_port: int = 9051, socks_port: int = 9050):

